@@ -79,9 +79,10 @@ class _HomeScreenState extends State<HomeScreen> {
   BiayaTenagaKerja? biayaTenagaKerja;
   bool showBiayaTenagaKerja = false;
 
-  final Color primaryColor = const Color(0xFF008B0B);
-  final Color primaryLight = const Color(0xFFE8F5E9);
-  final Color backgroundColor = const Color(0xFFF8F9FA);
+  final Color primaryColor = const Color(0xFF0F6CCB);
+  final Color primaryColorLight = const Color(0xFF0F84D4);
+  final Color primaryLight = const Color(0xFFE8F2FF);
+  final Color backgroundColor = const Color(0xFFFFFFFF);
 
   @override
   Widget build(BuildContext context) {
@@ -233,6 +234,7 @@ class _HomeScreenState extends State<HomeScreen> {
             }),
             if (listBahan.isEmpty)
               Container(
+                width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: primaryLight.withOpacity(0.3),
@@ -241,11 +243,24 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 child: Column(
                   children: [
-                    Icon(Icons.inventory_2, size: 48, color: Colors.grey[400]),
+                    Image.asset(
+                      'assets/img/bahan.png',
+                      width: 220,
+                      height: 120,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(
+                          FontAwesomeIcons.boxOpen,
+                          size: 48,
+                          color: Colors.grey[400],
+                        );
+                      },
+                    ),
                     const SizedBox(height: 8),
                     Text(
                       'Belum ada bahan baku',
                       style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                      textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 12),
                     ElevatedButton(
@@ -324,7 +339,7 @@ class _HomeScreenState extends State<HomeScreen> {
               value: 'edit',
               child: Row(
                 children: [
-                  Icon(Icons.edit, size: 20, color: Colors.blue,),
+                  Icon(Icons.edit, size: 20, color: Colors.blue),
                   SizedBox(width: 8),
                   Text('Edit'),
                 ],
@@ -386,7 +401,10 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.white,
         title: Row(
           children: [
-            Icon(isEdit ? Icons.edit : Icons.post_add_rounded, color: primaryColor),
+            Icon(
+              isEdit ? Icons.edit : Icons.post_add_rounded,
+              color: primaryColor,
+            ),
             const SizedBox(width: 8),
             Text(isEdit ? 'Edit Bahan Baku' : 'Tambah Bahan Baku'),
           ],
@@ -574,7 +592,7 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('Batal', style: TextStyle(color: primaryColor),),
+            child: Text('Batal', style: TextStyle(color: primaryColor)),
           ),
           ElevatedButton(
             onPressed: () {
@@ -846,6 +864,7 @@ class _HomeScreenState extends State<HomeScreen> {
             }).toList(),
             if (listBiayaTetap.isEmpty)
               Container(
+                width: double.infinity,
                 padding: const EdgeInsets.all(20),
                 decoration: BoxDecoration(
                   color: primaryLight.withOpacity(0.3),
@@ -854,7 +873,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
                 child: Column(
                   children: [
-                    Icon(Icons.attach_money, size: 48, color: Colors.grey[400]),
+                    Image.asset(
+                      'assets/img/biaya.png',
+                      width: 220,
+                      height: 120,
+                      fit: BoxFit.contain,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Icon(
+                          Icons.attach_money,
+                          size: 48,
+                          color: Colors.grey[400],
+                        );
+                      },
+                    ),
                     const SizedBox(height: 8),
                     Text(
                       'Belum ada biaya tetap',
@@ -966,11 +997,7 @@ class _HomeScreenState extends State<HomeScreen> {
     bool isEdit = index != null;
     BiayaTetap biayaEdit = isEdit
         ? BiayaTetap.copy(listBiayaTetap[index])
-        : BiayaTetap(
-            nama: '',
-            totalBiaya: 0,
-            alokasiPerProduk: 0,
-          );
+        : BiayaTetap(nama: '', totalBiaya: 0, alokasiPerProduk: 0);
 
     TextEditingController namaController = TextEditingController(
       text: biayaEdit.nama,
@@ -1040,7 +1067,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     keyboardType: TextInputType.number,
                     onChanged: (value) {
                       setDialogState(() {
-                        saranAlokasi = _hitungSaranAlokasi(double.tryParse(value) ?? 0);
+                        saranAlokasi = _hitungSaranAlokasi(
+                          double.tryParse(value) ?? 0,
+                        );
                       });
                     },
                   ),
@@ -1188,7 +1217,6 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-
   void _hapusBahan(int index) {
     setState(() {
       listBahan.removeAt(index);
@@ -1252,7 +1280,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
       double totalBiayaTenagaKerja = biayaTenagaKerja?.biayaPerProduk ?? 0;
 
-      double hpp = totalBiayaBahan + totalAlokasiBiayaTetap + totalBiayaTenagaKerja;
+      double hpp =
+          totalBiayaBahan + totalAlokasiBiayaTetap + totalBiayaTenagaKerja;
 
       Navigator.push(
         context,

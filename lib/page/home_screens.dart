@@ -79,7 +79,6 @@ class _HomeScreenState extends State<HomeScreen> {
   BiayaTenagaKerja? biayaTenagaKerja;
   bool showBiayaTenagaKerja = false;
 
-  // Warna tema
   final Color primaryColor = const Color(0xFF008B0B);
   final Color primaryLight = const Color(0xFFE8F5E9);
   final Color backgroundColor = const Color(0xFFF8F9FA);
@@ -618,7 +617,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
     setState(() {
       if (index == null) {
-        // Tambah baru
         listBahan.add(
           Bahan(
             nama: nama,
@@ -631,7 +629,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       } else {
-        // Edit existing
         listBahan[index] = Bahan(
           nama: nama,
           jumlahPakai: jumlahPakai,
@@ -1150,7 +1147,6 @@ class _HomeScreenState extends State<HomeScreen> {
   ) {
     setState(() {
       if (index == null) {
-        // Tambah baru
         listBiayaTetap.add(
           BiayaTetap(
             nama: nama,
@@ -1159,7 +1155,6 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         );
       } else {
-        // Edit existing
         listBiayaTetap[index] = BiayaTetap(
           nama: nama,
           totalBiaya: totalBiaya,
@@ -1186,7 +1181,6 @@ class _HomeScreenState extends State<HomeScreen> {
           shadowColor: primaryColor.withOpacity(0.3),
         ),
         child: Text('Hitung HPP & Saran Harga'),
-        
       ),
     );
   }
@@ -1243,26 +1237,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _hitungHPP() {
     if (_formKey.currentState!.validate()) {
-      // Hitung total biaya bahan
       double totalBiayaBahan = listBahan.fold(
         0,
         (sum, bahan) => sum + bahan.biayaProduk,
       );
 
-      // Hitung total alokasi biaya tetap
       double totalAlokasiBiayaTetap = listBiayaTetap.fold(
         0,
         (sum, biaya) => sum + biaya.alokasiPerProduk,
       );
 
-      // Hitung biaya tenaga kerja
       double totalBiayaTenagaKerja = biayaTenagaKerja?.biayaPerProduk ?? 0;
 
-      // Hitung HPP
-      double hpp =
-          totalBiayaBahan + totalAlokasiBiayaTetap + totalBiayaTenagaKerja;
+      double hpp = totalBiayaBahan + totalAlokasiBiayaTetap + totalBiayaTenagaKerja;
 
-      // Navigasi ke hasil
       Navigator.push(
         context,
         MaterialPageRoute(

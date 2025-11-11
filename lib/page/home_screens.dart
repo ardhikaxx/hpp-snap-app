@@ -686,6 +686,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     });
                   },
                   activeThumbColor: primaryColor,
+                  activeTrackColor: primaryLight,
+                  inactiveThumbColor: Colors.grey.shade500,
+                  inactiveTrackColor: Colors.grey.shade100,
                 ),
               ],
             ),

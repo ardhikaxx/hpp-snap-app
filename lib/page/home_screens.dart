@@ -82,7 +82,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final Color primaryColor = const Color(0xFF0F6CCB);
   final Color primaryColorLight = const Color(0xFF0F84D4);
   final Color primaryLight = const Color(0xFFE8F2FF);
-  final Color backgroundColor = const Color(0xFFFFFFFF);
+  final Color backgroundPrimary = const Color(0xFFF8FBFF);
 
   @override
   Widget build(BuildContext context) {
@@ -90,16 +90,18 @@ class _HomeScreenState extends State<HomeScreen> {
       appBar: AppBar(
         title: const Text(
           'HPP Snap App',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
+          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 34, fontFamily: 'SuperTrend',),
         ),
+        centerTitle: true,
+        toolbarHeight: 80,
         backgroundColor: primaryColor,
         foregroundColor: Colors.white,
         elevation: 0,
         shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(16)),
+          borderRadius: BorderRadius.vertical(bottom: Radius.circular(18)),
         ),
       ),
-      backgroundColor: backgroundColor,
+      backgroundColor: backgroundPrimary,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Form(

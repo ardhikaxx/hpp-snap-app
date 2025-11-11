@@ -27,6 +27,15 @@ class Bahan {
     required this.satuanBeli,
     required this.biayaProduk,
   });
+
+  Bahan.copy(Bahan other)
+    : nama = other.nama,
+      jumlahPakai = other.jumlahPakai,
+      satuan = other.satuan,
+      totalHarga = other.totalHarga,
+      jumlahBeli = other.jumlahBeli,
+      satuanBeli = other.satuanBeli,
+      biayaProduk = other.biayaProduk;
 }
 
 class BiayaTetap {
@@ -122,7 +131,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildInfoProduk() {
     return Card(
-      elevation: 4,
+      elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       color: Colors.white,
       child: Padding(
@@ -148,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 labelStyle: TextStyle(color: Colors.grey[500]),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide(color: Colors.grey.shade100),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(18),
@@ -172,7 +181,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 labelStyle: TextStyle(color: Colors.grey[500]),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide(color: Colors.grey.shade100),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(18),
@@ -190,7 +199,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildBahanSection() {
     return Card(
-      elevation: 4,
+      elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       color: Colors.white,
       child: Padding(
@@ -214,235 +223,449 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                   child: IconButton(
                     icon: const Icon(Icons.add, color: Colors.white),
-                    onPressed: _tambahBahan,
+                    onPressed: () => _showTambahBahanPopup(null),
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 20),
+            const SizedBox(height: 16),
+            Text(
+              'Daftar bahan baku yang digunakan:',
+              style: TextStyle(color: Colors.grey[600], fontSize: 14),
+            ),
+            const SizedBox(height: 12),
             ...listBahan.asMap().entries.map((entry) {
               int index = entry.key;
               Bahan bahan = entry.value;
-              return _buildBahanItem(index, bahan);
-            }).toList(),
+              return _buildBahanCard(index, bahan);
+            }),
+            if (listBahan.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: primaryLight.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: primaryColor.withOpacity(0.2)),
+                ),
+                child: Column(
+                  children: [
+                    Icon(Icons.inventory_2, size: 48, color: Colors.grey[400]),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Belum ada bahan baku',
+                      style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: () => _showTambahBahanPopup(null),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text('Tambah Bahan Baku Pertama'),
+                    ),
+                  ],
+                ),
+              ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildBahanItem(int index, Bahan bahan) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: primaryLight.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: primaryColor.withOpacity(0.2)),
+  Widget _buildBahanCard(int index, Bahan bahan) {
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      color: Colors.white,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: primaryColor.withOpacity(0.1), width: 2),
       ),
-      child: Column(
-        children: [
-          if (index > 0)
-            Divider(color: primaryColor.withOpacity(0.3), height: 20),
-          Row(
-            children: [
-              Expanded(
-                flex: 2,
-                child: TextFormField(
-                  initialValue: bahan.nama,
-                  decoration: InputDecoration(
-                    labelText: 'Nama Bahan',
-                    labelStyle: TextStyle(color: Colors.grey[500]),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide(color: Colors.grey.shade100),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius:  BorderRadius.circular(18),
-                      borderSide: BorderSide(color: primaryColor, width: 2),
-                    ),
-                    filled: true,
-                    fillColor: primaryLight,
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      listBahan[index].nama = value;
-                    });
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: TextFormField(
-                  initialValue: bahan.jumlahPakai.toString(),
-                  decoration: InputDecoration(
-                    labelText: 'Jumlah',
-                    labelStyle: TextStyle(color: Colors.grey[500]),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide(color: Colors.grey.shade100),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius:  BorderRadius.circular(18),
-                      borderSide: BorderSide(color: primaryColor, width: 2),
-                    ),
-                    filled: true,
-                    fillColor: primaryLight,
-                  ),
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    setState(() {
-                      listBahan[index].jumlahPakai =
-                          double.tryParse(value) ?? 0;
-                      _hitungBiayaProdukBahan(index);
-                    });
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: TextFormField(
-                  initialValue: bahan.satuan,
-                  decoration: InputDecoration(
-                    labelText: 'Satuan',
-                    labelStyle: TextStyle(color: Colors.grey[500]),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide(color: Colors.grey.shade100),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius:  BorderRadius.circular(18),
-                      borderSide: BorderSide(color: primaryColor, width: 2),
-                    ),
-                    filled: true,
-                    fillColor: primaryLight,
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      listBahan[index].satuan = value;
-                    });
-                  },
-                ),
-              ),
-              if (index > 0)
-                IconButton(
-                  icon: Icon(Icons.delete, color: Colors.red.shade600),
-                  onPressed: () => _hapusBahan(index),
-                ),
-            ],
+      child: ListTile(
+        leading: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: primaryLight,
+            borderRadius: BorderRadius.circular(8),
           ),
-          const SizedBox(height: 12),
-          const Text(
-            'Info Pembelian Bahan',
-            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.green),
-          ),
-          const SizedBox(height: 8),
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  initialValue: bahan.totalHarga.toString(),
-                  decoration: InputDecoration(
-                    labelText: 'Total Harga (Rp)',
-                    labelStyle: TextStyle(color: Colors.grey[500]),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide(color: Colors.grey.shade100),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius:  BorderRadius.circular(18),
-                      borderSide: BorderSide(color: primaryColor, width: 2),
-                    ),
-                    filled: true,
-                    fillColor: primaryLight,
-                    prefixText: 'Rp ',
-                  ),
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    setState(() {
-                      listBahan[index].totalHarga = double.tryParse(value) ?? 0;
-                      _hitungBiayaProdukBahan(index);
-                    });
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: TextFormField(
-                  initialValue: bahan.jumlahBeli.toString(),
-                  decoration: InputDecoration(
-                    labelText: 'Jumlah Beli',
-                    labelStyle: TextStyle(color: Colors.grey[500]),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide(color: Colors.grey.shade100),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius:  BorderRadius.circular(18),
-                      borderSide: BorderSide(color: primaryColor, width: 2),
-                    ),
-                    filled: true,
-                    fillColor: primaryLight,
-                  ),
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    setState(() {
-                      listBahan[index].jumlahBeli = double.tryParse(value) ?? 0;
-                      _hitungBiayaProdukBahan(index);
-                    });
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: TextFormField(
-                  initialValue: bahan.satuanBeli,
-                  decoration: InputDecoration(
-                    labelText: 'Satuan',
-                    labelStyle: TextStyle(color: Colors.grey[500]),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide(color: Colors.grey.shade100),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius:  BorderRadius.circular(18),
-                      borderSide: BorderSide(color: primaryColor, width: 2),
-                    ),
-                    filled: true,
-                    fillColor: primaryLight,
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      listBahan[index].satuanBeli = value;
-                    });
-                  },
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 16),
-          TextFormField(
-            enabled: false,
-            initialValue:
-                'Biaya Produk: Rp ${_formatCurrency(bahan.biayaProduk)}',
-            decoration: InputDecoration(
-              labelText: 'Biaya Produk (Otomatis)',
-              labelStyle: TextStyle(color: Colors.grey[500]),
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(18),
-              ),
-              filled: true,
-              fillColor: primaryLight,
+          child: Icon(FontAwesomeIcons.boxOpen, color: primaryColor),
+        ),
+        title: Text(
+          bahan.nama.isEmpty ? 'Bahan ${index + 1}' : bahan.nama,
+          style: const TextStyle(fontWeight: FontWeight.w500),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 4),
+            Text(
+              '${bahan.jumlahPakai} ${bahan.satuan} per produk',
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
+            Text(
+              'Biaya: Rp ${_formatCurrency(bahan.biayaProduk)}',
+              style: TextStyle(
+                fontSize: 12,
+                color: primaryColor,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+        trailing: PopupMenuButton<String>(
+          icon: Icon(Icons.more_vert, color: primaryColor),
+          onSelected: (value) {
+            if (value == 'edit') {
+              _showTambahBahanPopup(index);
+            } else if (value == 'delete') {
+              _hapusBahan(index);
+            }
+          },
+          itemBuilder: (BuildContext context) => [
+            const PopupMenuItem<String>(
+              value: 'edit',
+              child: Row(
+                children: [
+                  Icon(Icons.edit, size: 20),
+                  SizedBox(width: 8),
+                  Text('Edit'),
+                ],
+              ),
+            ),
+            const PopupMenuItem<String>(
+              value: 'delete',
+              child: Row(
+                children: [
+                  Icon(Icons.delete, color: Colors.red, size: 20),
+                  SizedBox(width: 8),
+                  Text('Hapus'),
+                ],
+              ),
+            ),
+          ],
+        ),
+        onTap: () => _showTambahBahanPopup(index),
+      ),
+    );
+  }
+
+  void _showTambahBahanPopup(int? index) {
+    bool isEdit = index != null;
+    Bahan bahanEdit = isEdit
+        ? Bahan.copy(listBahan[index])
+        : Bahan(
+            nama: '',
+            jumlahPakai: 0,
+            satuan: 'pcs',
+            totalHarga: 0,
+            jumlahBeli: 0,
+            satuanBeli: 'pcs',
+            biayaProduk: 0,
+          );
+
+    TextEditingController namaController = TextEditingController(
+      text: bahanEdit.nama,
+    );
+    TextEditingController jumlahPakaiController = TextEditingController(
+      text: bahanEdit.jumlahPakai.toString(),
+    );
+    TextEditingController satuanController = TextEditingController(
+      text: bahanEdit.satuan,
+    );
+    TextEditingController totalHargaController = TextEditingController(
+      text: bahanEdit.totalHarga.toString(),
+    );
+    TextEditingController jumlahBeliController = TextEditingController(
+      text: bahanEdit.jumlahBeli.toString(),
+    );
+    TextEditingController satuanBeliController = TextEditingController(
+      text: bahanEdit.satuanBeli,
+    );
+
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Colors.white,
+        title: Row(
+          children: [
+            Icon(isEdit ? Icons.edit : Icons.add, color: primaryColor),
+            const SizedBox(width: 8),
+            Text(isEdit ? 'Edit Bahan Baku' : 'Tambah Bahan Baku'),
+          ],
+        ),
+        content: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: namaController,
+                decoration: InputDecoration(
+                  labelText: 'Nama Bahan',
+                  labelStyle: TextStyle(color: Colors.grey[500]),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide(color: primaryColor, width: 2),
+                  ),
+                  filled: true,
+                  fillColor: primaryLight,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    flex: 2,
+                    child: TextFormField(
+                      controller: jumlahPakaiController,
+                      decoration: InputDecoration(
+                        labelText: 'Jumlah Pakai',
+                        labelStyle: TextStyle(color: Colors.grey[500]),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(color: primaryColor, width: 2),
+                        ),
+                        filled: true,
+                        fillColor: primaryLight,
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextFormField(
+                      controller: satuanController,
+                      decoration: InputDecoration(
+                        labelText: 'Satuan',
+                        labelStyle: TextStyle(color: Colors.grey[500]),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(color: primaryColor, width: 2),
+                        ),
+                        filled: true,
+                        fillColor: primaryLight,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              const Divider(),
+              const SizedBox(height: 8),
+              const Text(
+                'Info Pembelian Bahan',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                controller: totalHargaController,
+                decoration: InputDecoration(
+                  labelText: 'Total Harga Pembelian (Rp)',
+                  labelStyle: TextStyle(color: Colors.grey[500]),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(18),
+                    borderSide: BorderSide(color: primaryColor, width: 2),
+                  ),
+                  filled: true,
+                  fillColor: primaryLight,
+                  prefixText: 'Rp ',
+                ),
+                keyboardType: TextInputType.number,
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: TextFormField(
+                      controller: jumlahBeliController,
+                      decoration: InputDecoration(
+                        labelText: 'Jumlah Beli',
+                        labelStyle: TextStyle(color: Colors.grey[500]),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(color: primaryColor, width: 2),
+                        ),
+                        filled: true,
+                        fillColor: primaryLight,
+                      ),
+                      keyboardType: TextInputType.number,
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: TextFormField(
+                      controller: satuanBeliController,
+                      decoration: InputDecoration(
+                        labelText: 'Satuan Beli',
+                        labelStyle: TextStyle(color: Colors.grey[500]),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(color: Colors.grey.shade300),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(18),
+                          borderSide: BorderSide(color: primaryColor, width: 2),
+                        ),
+                        filled: true,
+                        fillColor: primaryLight,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: primaryLight,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: primaryColor),
+                ),
+                child: Row(
+                  children: [
+                    Icon(FontAwesomeIcons.boxOpen, color: primaryColor),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            'Biaya per Produk:',
+                            style: TextStyle(
+                              color: Colors.grey[600],
+                              fontSize: 12,
+                            ),
+                          ),
+                          Text(
+                            'Rp ${_formatCurrency(_hitungBiayaProduk(double.tryParse(totalHargaController.text) ?? 0, double.tryParse(jumlahBeliController.text) ?? 0, double.tryParse(jumlahPakaiController.text) ?? 0))}',
+                            style: TextStyle(
+                              color: primaryColor,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 16,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Batal', style: TextStyle(color: primaryColor),),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              _simpanBahan(
+                index,
+                namaController.text,
+                double.tryParse(jumlahPakaiController.text) ?? 0,
+                satuanController.text,
+                double.tryParse(totalHargaController.text) ?? 0,
+                double.tryParse(jumlahBeliController.text) ?? 0,
+                satuanBeliController.text,
+              );
+              Navigator.pop(context);
+            },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: primaryColor,
+              foregroundColor: Colors.white,
+            ),
+            child: Text(isEdit ? 'Simpan' : 'Tambah'),
           ),
         ],
       ),
     );
   }
 
+  void _simpanBahan(
+    int? index,
+    String nama,
+    double jumlahPakai,
+    String satuan,
+    double totalHarga,
+    double jumlahBeli,
+    String satuanBeli,
+  ) {
+    double biayaProduk = _hitungBiayaProduk(
+      totalHarga,
+      jumlahBeli,
+      jumlahPakai,
+    );
+
+    setState(() {
+      if (index == null) {
+        // Tambah baru
+        listBahan.add(
+          Bahan(
+            nama: nama,
+            jumlahPakai: jumlahPakai,
+            satuan: satuan,
+            totalHarga: totalHarga,
+            jumlahBeli: jumlahBeli,
+            satuanBeli: satuanBeli,
+            biayaProduk: biayaProduk,
+          ),
+        );
+      } else {
+        // Edit existing
+        listBahan[index] = Bahan(
+          nama: nama,
+          jumlahPakai: jumlahPakai,
+          satuan: satuan,
+          totalHarga: totalHarga,
+          jumlahBeli: jumlahBeli,
+          satuanBeli: satuanBeli,
+          biayaProduk: biayaProduk,
+        );
+      }
+    });
+  }
+
+  double _hitungBiayaProduk(
+    double totalHarga,
+    double jumlahBeli,
+    double jumlahPakai,
+  ) {
+    if (jumlahBeli > 0 && totalHarga > 0) {
+      double biayaPerUnit = totalHarga / jumlahBeli;
+      return biayaPerUnit * jumlahPakai;
+    }
+    return 0;
+  }
+
   Widget _buildBiayaTenagaKerjaSection() {
     return Card(
-      elevation: 4,
+      elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       color: Colors.white,
       child: Padding(
@@ -489,7 +712,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   labelStyle: TextStyle(color: Colors.grey[500]),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide(color: Colors.grey.shade100),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(18),
@@ -513,7 +736,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   labelStyle: TextStyle(color: Colors.grey[500]),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(18),
-                    borderSide: BorderSide(color: Colors.grey.shade100),
+                    borderSide: BorderSide(color: Colors.grey.shade300),
                   ),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(18),
@@ -561,7 +784,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildBiayaTetapSection() {
     return Card(
-      elevation: 4,
+      elevation: 2,
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       color: Colors.white,
       child: Padding(
@@ -592,7 +815,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 labelStyle: TextStyle(color: Colors.grey[500]),
                 enabledBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(18),
-                  borderSide: BorderSide(color: Colors.grey.shade100),
+                  borderSide: BorderSide(color: Colors.grey.shade300),
                 ),
                 focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(18),
@@ -666,10 +889,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     labelStyle: TextStyle(color: Colors.grey[500]),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide(color: Colors.grey.shade100),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius:  BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(18),
                       borderSide: BorderSide(color: primaryColor, width: 2),
                     ),
                     filled: true,
@@ -691,10 +914,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     labelStyle: TextStyle(color: Colors.grey[500]),
                     enabledBorder: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide(color: Colors.grey.shade100),
+                      borderSide: BorderSide(color: Colors.grey.shade300),
                     ),
                     focusedBorder: OutlineInputBorder(
-                      borderRadius:  BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(18),
                       borderSide: BorderSide(color: primaryColor, width: 2),
                     ),
                     filled: true,
@@ -721,10 +944,10 @@ class _HomeScreenState extends State<HomeScreen> {
               labelStyle: TextStyle(color: Colors.grey[500]),
               enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(18),
-                borderSide: BorderSide(color: Colors.grey.shade100),
+                borderSide: BorderSide(color: Colors.grey.shade300),
               ),
               focusedBorder: OutlineInputBorder(
-                borderRadius:  BorderRadius.circular(18),
+                borderRadius: BorderRadius.circular(18),
                 borderSide: BorderSide(color: primaryColor, width: 2),
               ),
               filled: true,
@@ -771,7 +994,7 @@ class _HomeScreenState extends State<HomeScreen> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16),
           ),
-          elevation: 4,
+          elevation: 2,
           shadowColor: primaryColor.withOpacity(0.3),
         ),
         child: const Row(
@@ -787,19 +1010,7 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _tambahBahan() {
-    setState(() {
-      listBahan.add(
-        Bahan(
-          nama: '',
-          jumlahPakai: 0,
-          satuan: 'pcs',
-          totalHarga: 0,
-          jumlahBeli: 0,
-          satuanBeli: 'pcs',
-          biayaProduk: 0,
-        ),
-      );
-    });
+    _showTambahBahanPopup(null);
   }
 
   void _hapusBahan(int index) {
@@ -820,17 +1031,6 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       listBiayaTetap.removeAt(index);
     });
-  }
-
-  void _hitungBiayaProdukBahan(int index) {
-    Bahan bahan = listBahan[index];
-    if (bahan.jumlahBeli > 0 && bahan.totalHarga > 0) {
-      double biayaPerUnit = bahan.totalHarga / bahan.jumlahBeli;
-      double biayaProduk = biayaPerUnit * bahan.jumlahPakai;
-      setState(() {
-        listBahan[index].biayaProduk = biayaProduk;
-      });
-    }
   }
 
   void _updateBiayaTenagaKerja() {

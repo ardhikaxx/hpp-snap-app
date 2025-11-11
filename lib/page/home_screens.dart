@@ -48,6 +48,11 @@ class BiayaTetap {
     required this.totalBiaya,
     required this.alokasiPerProduk,
   });
+
+  BiayaTetap.copy(BiayaTetap other)
+    : nama = other.nama,
+      totalBiaya = other.totalBiaya,
+      alokasiPerProduk = other.alokasiPerProduk;
 }
 
 class BiayaTenagaKerja {
@@ -67,21 +72,9 @@ class _HomeScreenState extends State<HomeScreen> {
   TextEditingController keteranganTenagaKerjaController =
       TextEditingController();
 
-  List<Bahan> listBahan = [
-    Bahan(
-      nama: '',
-      jumlahPakai: 0,
-      satuan: 'pcs',
-      totalHarga: 0,
-      jumlahBeli: 0,
-      satuanBeli: 'pcs',
-      biayaProduk: 0,
-    ),
-  ];
+  List<Bahan> listBahan = [];
 
-  List<BiayaTetap> listBiayaTetap = [
-    BiayaTetap(nama: '', totalBiaya: 0, alokasiPerProduk: 0),
-  ];
+  List<BiayaTetap> listBiayaTetap = [];
 
   BiayaTenagaKerja? biayaTenagaKerja;
   bool showBiayaTenagaKerja = false;
@@ -318,6 +311,7 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
         trailing: PopupMenuButton<String>(
+          color: Colors.white,
           icon: Icon(Icons.more_vert, color: primaryColor),
           onSelected: (value) {
             if (value == 'edit') {
@@ -331,7 +325,7 @@ class _HomeScreenState extends State<HomeScreen> {
               value: 'edit',
               child: Row(
                 children: [
-                  Icon(Icons.edit, size: 20),
+                  Icon(Icons.edit, size: 20, color: Colors.blue,),
                   SizedBox(width: 8),
                   Text('Edit'),
                 ],
@@ -393,7 +387,7 @@ class _HomeScreenState extends State<HomeScreen> {
         backgroundColor: Colors.white,
         title: Row(
           children: [
-            Icon(isEdit ? Icons.edit : Icons.add, color: primaryColor),
+            Icon(isEdit ? Icons.edit : Icons.post_add_rounded, color: primaryColor),
             const SizedBox(width: 8),
             Text(isEdit ? 'Edit Bahan Baku' : 'Tambah Bahan Baku'),
           ],
@@ -797,8 +791,19 @@ class _HomeScreenState extends State<HomeScreen> {
                 Icon(Icons.business_center, color: primaryColor),
                 const SizedBox(width: 12),
                 const Text(
-                  'Alokasi Biaya Tetap per Produk',
+                  'Alokasi Biaya Tetap',
                   style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                ),
+                const Spacer(),
+                Container(
+                  decoration: BoxDecoration(
+                    color: primaryColor,
+                    borderRadius: BorderRadius.circular(18),
+                  ),
+                  child: IconButton(
+                    icon: const Icon(Icons.add, color: Colors.white),
+                    onPressed: () => _showTambahBiayaTetapPopup(null),
+                  ),
                 ),
               ],
             ),
@@ -837,148 +842,331 @@ class _HomeScreenState extends State<HomeScreen> {
             ...listBiayaTetap.asMap().entries.map((entry) {
               int index = entry.key;
               BiayaTetap biaya = entry.value;
-              return _buildBiayaTetapItem(index, biaya);
+              return _buildBiayaTetapCard(index, biaya);
             }).toList(),
-            const SizedBox(height: 16),
-            Center(
-              child: ElevatedButton.icon(
-                icon: Icon(Icons.add, color: Colors.white),
-                label: const Text('Tambah Biaya'),
-                onPressed: _tambahBiayaTetap,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: primaryColor,
-                  foregroundColor: Colors.white,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(18),
-                  ),
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 12,
-                  ),
+            if (listBiayaTetap.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(20),
+                decoration: BoxDecoration(
+                  color: primaryLight.withOpacity(0.3),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: primaryColor.withOpacity(0.2)),
+                ),
+                child: Column(
+                  children: [
+                    Icon(Icons.attach_money, size: 48, color: Colors.grey[400]),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Belum ada biaya tetap',
+                      style: TextStyle(color: Colors.grey[600], fontSize: 16),
+                    ),
+                    const SizedBox(height: 12),
+                    ElevatedButton(
+                      onPressed: () => _showTambahBiayaTetapPopup(null),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: primaryColor,
+                        foregroundColor: Colors.white,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                      ),
+                      child: const Text('Tambah Biaya Tetap Pertama'),
+                    ),
+                  ],
                 ),
               ),
-            ),
           ],
         ),
       ),
     );
   }
 
-  Widget _buildBiayaTetapItem(int index, BiayaTetap biaya) {
-    double saranAlokasi = _hitungSaranAlokasi(biaya.totalBiaya);
+  Widget _buildBiayaTetapCard(int index, BiayaTetap biaya) {
+    _hitungSaranAlokasi(biaya.totalBiaya);
 
-    return Container(
-      margin: const EdgeInsets.only(bottom: 16),
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: primaryLight.withOpacity(0.3),
-        borderRadius: BorderRadius.circular(18),
-        border: Border.all(color: primaryColor.withOpacity(0.2)),
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      color: Colors.white,
+      elevation: 0,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+        side: BorderSide(color: primaryColor.withOpacity(0.1), width: 2),
       ),
-      child: Column(
-        children: [
-          if (index > 0)
-            Divider(color: primaryColor.withOpacity(0.3), height: 20),
-          Row(
-            children: [
-              Expanded(
-                child: TextFormField(
-                  initialValue: biaya.nama,
-                  decoration: InputDecoration(
-                    labelText: 'Nama Biaya',
-                    labelStyle: TextStyle(color: Colors.grey[500]),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide(color: primaryColor, width: 2),
-                    ),
-                    filled: true,
-                    fillColor: primaryLight,
-                  ),
-                  onChanged: (value) {
-                    setState(() {
-                      listBiayaTetap[index].nama = value;
-                    });
-                  },
-                ),
-              ),
-              const SizedBox(width: 8),
-              Expanded(
-                child: TextFormField(
-                  initialValue: biaya.totalBiaya.toString(),
-                  decoration: InputDecoration(
-                    labelText: 'Total Biaya (Rp/Bulan)',
-                    labelStyle: TextStyle(color: Colors.grey[500]),
-                    enabledBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide(color: Colors.grey.shade300),
-                    ),
-                    focusedBorder: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(18),
-                      borderSide: BorderSide(color: primaryColor, width: 2),
-                    ),
-                    filled: true,
-                    fillColor: primaryLight,
-                    prefixText: 'Rp ',
-                  ),
-                  keyboardType: TextInputType.number,
-                  onChanged: (value) {
-                    setState(() {
-                      listBiayaTetap[index].totalBiaya =
-                          double.tryParse(value) ?? 0;
-                      _updateSaranAlokasi();
-                    });
-                  },
-                ),
-              ),
-            ],
+      child: ListTile(
+        leading: Container(
+          width: 40,
+          height: 40,
+          decoration: BoxDecoration(
+            color: primaryLight,
+            borderRadius: BorderRadius.circular(8),
           ),
-          const SizedBox(height: 8),
-          TextFormField(
-            initialValue: biaya.alokasiPerProduk.toString(),
-            decoration: InputDecoration(
-              labelText: 'Alokasi per Produk (Rp)',
-              labelStyle: TextStyle(color: Colors.grey[500]),
-              enabledBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(18),
-                borderSide: BorderSide(color: Colors.grey.shade300),
-              ),
-              focusedBorder: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(18),
-                borderSide: BorderSide(color: primaryColor, width: 2),
-              ),
-              filled: true,
-              fillColor: primaryLight,
-              prefixText: 'Rp ',
-              helperText: 'Saran: Rp ${_formatCurrency(saranAlokasi)}',
-              helperStyle: TextStyle(color: primaryColor),
+          child: Icon(Icons.attach_money, color: primaryColor),
+        ),
+        title: Text(
+          biaya.nama.isEmpty ? 'Biaya ${index + 1}' : biaya.nama,
+          style: const TextStyle(fontWeight: FontWeight.w500),
+        ),
+        subtitle: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 4),
+            Text(
+              'Total: Rp ${_formatCurrency(biaya.totalBiaya)}/bulan',
+              style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
-            keyboardType: TextInputType.number,
-            onChanged: (value) {
-              setState(() {
-                listBiayaTetap[index].alokasiPerProduk =
-                    double.tryParse(value) ?? 0;
-              });
-            },
-          ),
-          if (index > 0)
-            Align(
-              alignment: Alignment.centerRight,
-              child: TextButton.icon(
-                icon: Icon(Icons.delete, size: 18),
-                onPressed: () => _hapusBiayaTetap(index),
-                label: const Text('Hapus'),
-                style: TextButton.styleFrom(
-                  foregroundColor: Colors.red.shade600,
-                ),
+            Text(
+              'Alokasi: Rp ${_formatCurrency(biaya.alokasiPerProduk)}/produk',
+              style: TextStyle(
+                fontSize: 12,
+                color: primaryColor,
+                fontWeight: FontWeight.w500,
               ),
             ),
-        ],
+          ],
+        ),
+        trailing: PopupMenuButton<String>(
+          color: Colors.white,
+          icon: Icon(Icons.more_vert, color: primaryColor),
+          onSelected: (value) {
+            if (value == 'edit') {
+              _showTambahBiayaTetapPopup(index);
+            } else if (value == 'delete') {
+              _hapusBiayaTetap(index);
+            }
+          },
+          itemBuilder: (BuildContext context) => [
+            const PopupMenuItem<String>(
+              value: 'edit',
+              child: Row(
+                children: [
+                  Icon(Icons.edit, size: 20, color: Colors.blue),
+                  SizedBox(width: 8),
+                  Text('Edit'),
+                ],
+              ),
+            ),
+            const PopupMenuItem<String>(
+              value: 'delete',
+              child: Row(
+                children: [
+                  Icon(Icons.delete, color: Colors.red, size: 20),
+                  SizedBox(width: 8),
+                  Text('Hapus'),
+                ],
+              ),
+            ),
+          ],
+        ),
+        onTap: () => _showTambahBiayaTetapPopup(index),
       ),
     );
+  }
+
+  void _showTambahBiayaTetapPopup(int? index) {
+    bool isEdit = index != null;
+    BiayaTetap biayaEdit = isEdit
+        ? BiayaTetap.copy(listBiayaTetap[index])
+        : BiayaTetap(
+            nama: '',
+            totalBiaya: 0,
+            alokasiPerProduk: 0,
+          );
+
+    TextEditingController namaController = TextEditingController(
+      text: biayaEdit.nama,
+    );
+    TextEditingController totalBiayaController = TextEditingController(
+      text: biayaEdit.totalBiaya.toString(),
+    );
+    TextEditingController alokasiController = TextEditingController(
+      text: biayaEdit.alokasiPerProduk.toString(),
+    );
+
+    double saranAlokasi = _hitungSaranAlokasi(biayaEdit.totalBiaya);
+
+    showDialog(
+      context: context,
+      builder: (context) => StatefulBuilder(
+        builder: (context, setDialogState) {
+          return AlertDialog(
+            backgroundColor: Colors.white,
+            title: Row(
+              children: [
+                Icon(isEdit ? Icons.edit : Icons.money, color: primaryColor),
+                const SizedBox(width: 8),
+                Text(isEdit ? 'Edit Biaya Tetap' : 'Tambah Biaya Tetap'),
+              ],
+            ),
+            content: SingleChildScrollView(
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  const SizedBox(height: 16),
+                  TextFormField(
+                    controller: namaController,
+                    decoration: InputDecoration(
+                      labelText: 'Nama Biaya',
+                      labelStyle: TextStyle(color: Colors.grey[500]),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide(color: primaryColor, width: 2),
+                      ),
+                      filled: true,
+                      fillColor: primaryLight,
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: totalBiayaController,
+                    decoration: InputDecoration(
+                      labelText: 'Total Biaya per Bulan (Rp)',
+                      labelStyle: TextStyle(color: Colors.grey[500]),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide(color: primaryColor, width: 2),
+                      ),
+                      filled: true,
+                      fillColor: primaryLight,
+                      prefixText: 'Rp ',
+                    ),
+                    keyboardType: TextInputType.number,
+                    onChanged: (value) {
+                      setDialogState(() {
+                        saranAlokasi = _hitungSaranAlokasi(double.tryParse(value) ?? 0);
+                      });
+                    },
+                  ),
+                  const SizedBox(height: 12),
+                  TextFormField(
+                    controller: alokasiController,
+                    decoration: InputDecoration(
+                      labelText: 'Alokasi per Produk (Rp)',
+                      labelStyle: TextStyle(color: Colors.grey[500]),
+                      enabledBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide(color: Colors.grey.shade300),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(18),
+                        borderSide: BorderSide(color: primaryColor, width: 2),
+                      ),
+                      filled: true,
+                      fillColor: primaryLight,
+                      prefixText: 'Rp ',
+                      helperText: 'Saran: Rp ${_formatCurrency(saranAlokasi)}',
+                      helperStyle: TextStyle(color: primaryColor),
+                    ),
+                    keyboardType: TextInputType.number,
+                  ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: primaryLight,
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: primaryColor),
+                    ),
+                    child: Row(
+                      children: [
+                        Icon(Icons.lightbulb, color: primaryColor),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(
+                                'Saran Alokasi:',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 12,
+                                ),
+                              ),
+                              Text(
+                                'Rp ${_formatCurrency(saranAlokasi)} per produk',
+                                style: TextStyle(
+                                  color: primaryColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              if (saranAlokasi > 0)
+                                Text(
+                                  'Berdasarkan target ${targetPenjualanController.text.isEmpty ? '0' : targetPenjualanController.text} penjualan/bulan',
+                                  style: TextStyle(
+                                    color: Colors.grey[600],
+                                    fontSize: 10,
+                                  ),
+                                ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Batal', style: TextStyle(color: primaryColor)),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  _simpanBiayaTetap(
+                    index,
+                    namaController.text,
+                    double.tryParse(totalBiayaController.text) ?? 0,
+                    double.tryParse(alokasiController.text) ?? 0,
+                  );
+                  Navigator.pop(context);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  foregroundColor: Colors.white,
+                ),
+                child: Text(isEdit ? 'Simpan' : 'Tambah'),
+              ),
+            ],
+          );
+        },
+      ),
+    );
+  }
+
+  void _simpanBiayaTetap(
+    int? index,
+    String nama,
+    double totalBiaya,
+    double alokasiPerProduk,
+  ) {
+    setState(() {
+      if (index == null) {
+        // Tambah baru
+        listBiayaTetap.add(
+          BiayaTetap(
+            nama: nama,
+            totalBiaya: totalBiaya,
+            alokasiPerProduk: alokasiPerProduk,
+          ),
+        );
+      } else {
+        // Edit existing
+        listBiayaTetap[index] = BiayaTetap(
+          nama: nama,
+          totalBiaya: totalBiaya,
+          alokasiPerProduk: alokasiPerProduk,
+        );
+      }
+    });
   }
 
   Widget _buildHitungButton() {
@@ -997,33 +1185,16 @@ class _HomeScreenState extends State<HomeScreen> {
           elevation: 2,
           shadowColor: primaryColor.withOpacity(0.3),
         ),
-        child: const Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.calculate, size: 24),
-            SizedBox(width: 12),
-            Text('Hitung HPP & Saran Harga'),
-          ],
-        ),
+        child: Text('Hitung HPP & Saran Harga'),
+        
       ),
     );
   }
 
-  void _tambahBahan() {
-    _showTambahBahanPopup(null);
-  }
 
   void _hapusBahan(int index) {
     setState(() {
       listBahan.removeAt(index);
-    });
-  }
-
-  void _tambahBiayaTetap() {
-    setState(() {
-      listBiayaTetap.add(
-        BiayaTetap(nama: '', totalBiaya: 0, alokasiPerProduk: 0),
-      );
     });
   }
 

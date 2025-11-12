@@ -20,9 +20,7 @@ Aplikasi ini cocok untuk:
 
 - **Input Sumber Biaya:** Masukkan biaya bahan baku, tenaga kerja, overhead, dan biaya lain-lain.
 - **Kalkulasi Otomatis:** HPP dihitung otomatis berdasarkan data yang dimasukkan.
-- **Riwayat Perhitungan:** Simpan dan akses perhitungan sebelumnya.
-- **Export Data:** Ekspor hasil perhitungan untuk laporan bisnis.
-- **Support Multi Produk:** Hitung HPP untuk berbagai produk sekaligus.
+- **Riwayat Perhitungan:** Simpan perhitungan.
 
 ## Teknologi
 

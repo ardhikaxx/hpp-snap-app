@@ -35,7 +35,6 @@ Aplikasi ini dikembangkan dengan beberapa teknologi utama:
 | CMake      | 14.2%      |
 | Swift      | 1.3%       |
 | C          | 1%         |
-| HTML       | 0.9%       |
 | Lainnya    | 0.1%       |
 
 Dikembangkan menggunakan Flutter agar dapat berjalan pada berbagai platform mobile.

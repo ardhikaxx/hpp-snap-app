@@ -83,24 +83,15 @@ class _HomeScreenState extends State<HomeScreen> {
   final Color primaryColorLight = const Color(0xFF0F84D4);
   final Color primaryLight = const Color(0xFFE8F2FF);
   final Color backgroundPrimary = const Color(0xFFF8FBFF);
+  final Color gradientStart = const Color(0xFF0F6CCB);
+  final Color gradientEnd = const Color(0xFF0F84D4);
+  final Color accentColor = const Color(0xFFFF6B35);
+  final Color successColor = const Color(0xFF00C853);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'HPP Snap App',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 34, fontFamily: 'SuperTrend',),
-        ),
-        centerTitle: true,
-        toolbarHeight: 80,
-        backgroundColor: primaryColor,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(18)),
-        ),
-      ),
+      appBar: _buildCustomAppBar(),
       backgroundColor: backgroundPrimary,
       body: Padding(
         padding: const EdgeInsets.all(16.0),
@@ -120,6 +111,454 @@ class _HomeScreenState extends State<HomeScreen> {
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  PreferredSizeWidget _buildCustomAppBar() {
+    return AppBar(
+      toolbarHeight: 100,
+      backgroundColor: Colors.transparent,
+      elevation: 0,
+      flexibleSpace: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [gradientStart, gradientEnd],
+          ),
+          borderRadius: const BorderRadius.vertical(
+            bottom: Radius.circular(25),
+          ),
+          boxShadow: [
+            BoxShadow(
+              color: primaryColor.withOpacity(0.3),
+              blurRadius: 15,
+              offset: const Offset(0, 4),
+            ),
+          ],
+        ),
+      ),
+      title: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Text(
+            'HPP SNAP',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 26,
+              fontWeight: FontWeight.w800,
+              fontFamily: 'SuperTrend',
+              letterSpacing: 1.2,
+            ),
+          ),
+          Text(
+            'Hitung Harga Pokok Produksi',
+            style: TextStyle(
+              color: Colors.white.withOpacity(0.9),
+              fontSize: 14,
+              fontWeight: FontWeight.w400,
+              letterSpacing: 0.5,
+            ),
+          ),
+        ],
+      ),
+      actions: [
+        Padding(
+          padding: const EdgeInsets.only(right: 16.0),
+          child: Container(
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.15),
+              borderRadius: BorderRadius.circular(12),
+              border: Border.all(color: Colors.white.withOpacity(0.2)),
+            ),
+            child: IconButton(
+              icon: Icon(
+                Icons.help_outline_rounded,
+                color: Colors.white,
+                size: 22,
+              ),
+              onPressed: () {
+                _showHelpDialog();
+              },
+              tooltip: 'Bantuan',
+            ),
+          ),
+        ),
+      ],
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(bottom: Radius.circular(25)),
+      ),
+    );
+  }
+
+  void _showHelpDialog() {
+    showDialog(
+      context: context,
+      barrierColor: Colors.black54,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.transparent,
+        insetPadding: const EdgeInsets.all(20),
+        child: SizedBox(
+          child: Stack(
+            children: [
+              Container(
+                width: double.infinity,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [
+                      Colors.white,
+                      primaryLight.withOpacity(0.3),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(24),
+                  boxShadow: [
+                    BoxShadow(
+                      color: primaryColor.withOpacity(0.2),
+                      blurRadius: 25,
+                      offset: const Offset(0, 10),
+                    ),
+                  ],
+                ),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: CustomPaint(
+                    painter: _HelpDialogPainter(primaryColor),
+                    child: Padding(
+                      padding: const EdgeInsets.all(0),
+                      child: Column(
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(24),
+                            decoration: BoxDecoration(
+                              gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [
+                                  primaryColor,
+                                  primaryColorLight,
+                                ],
+                              ),
+                              borderRadius: const BorderRadius.only(
+                                topLeft: Radius.circular(24),
+                                topRight: Radius.circular(24),
+                              ),
+                            ),
+                            child: Column(
+                              children: [
+                                Container(
+                                  width: 60,
+                                  height: 60,
+                                  decoration: BoxDecoration(
+                                    color: Colors.white.withOpacity(0.2),
+                                    shape: BoxShape.circle,
+                                    border: Border.all(
+                                      color: Colors.white.withOpacity(0.3),
+                                      width: 2,
+                                    ),
+                                  ),
+                                  child: Icon(
+                                    Icons.help_center_rounded,
+                                    color: Colors.white,
+                                    size: 30,
+                                  ),
+                                ),
+                                const SizedBox(height: 16),
+                                Text(
+                                  'Panduan HPP SNAP',
+                                  style: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.w700,
+                                    letterSpacing: 0.5,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                                const SizedBox(height: 8),
+                                Text(
+                                  'Ikuti langkah-langkah berikut untuk menghitung Harga Pokok Produksi dengan mudah',
+                                  style: TextStyle(
+                                    color: Colors.white.withOpacity(0.9),
+                                    fontSize: 14,
+                                    fontWeight: FontWeight.w400,
+                                    height: 1.4,
+                                  ),
+                                  textAlign: TextAlign.center,
+                                ),
+                              ],
+                            ),
+                          ),
+                          Expanded(
+                            child: Padding(
+                              padding: const EdgeInsets.all(24),
+                              child: SingleChildScrollView(
+                                physics: const BouncingScrollPhysics(),
+                                child: Column(
+                                  children: [
+                                    _buildEnhancedHelpStep(
+                                      number: 1,
+                                      icon: Icons.shopping_bag_rounded,
+                                      title: 'Informasi Produk',
+                                      description: 'Isi nama dan kategori produk Anda untuk identifikasi',
+                                      color: primaryColor,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildEnhancedHelpStep(
+                                      number: 2,
+                                      icon: FontAwesomeIcons.boxesPacking,
+                                      title: 'Bahan Baku',
+                                      description: 'Tambahkan semua bahan yang digunakan beserta detail harga dan jumlah pemakaian',
+                                      color: accentColor,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildEnhancedHelpStep(
+                                      number: 3,
+                                      icon: Icons.engineering_rounded,
+                                      title: 'Biaya Tenaga Kerja',
+                                      description: 'Atur biaya pembuatan per produk (opsional)',
+                                      color: const Color(0xFF9C27B0),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildEnhancedHelpStep(
+                                      number: 4,
+                                      icon: Icons.business_center_rounded,
+                                      title: 'Biaya Tetap',
+                                      description: 'Alokasikan biaya operasional bulanan ke setiap produk',
+                                      color: successColor,
+                                    ),
+                                    const SizedBox(height: 16),
+                                    _buildEnhancedHelpStep(
+                                      number: 5,
+                                      icon: Icons.calculate_rounded,
+                                      title: 'Hitung HPP',
+                                      description: 'Dapatkan HPP dan saran harga jual yang optimal',
+                                      color: const Color(0xFFFF9800),
+                                    ),
+                                    const SizedBox(height: 16),
+                                    Container(
+                                      padding: const EdgeInsets.all(20),
+                                      decoration: BoxDecoration(
+                                        color: Colors.white,
+                                        borderRadius: BorderRadius.circular(16),
+                                        border: Border.all(
+                                          color: primaryColor.withOpacity(0.2),
+                                        ),
+                                      ),
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Row(
+                                            children: [
+                                              Icon(
+                                                Icons.lightbulb_rounded,
+                                                color: const Color(0xFFFFC107),
+                                                size: 24,
+                                              ),
+                                              const SizedBox(width: 8),
+                                              Text(
+                                                'Tips Penting',
+                                                style: TextStyle(
+                                                  color: primaryColor,
+                                                  fontSize: 18,
+                                                  fontWeight: FontWeight.w700,
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                          const SizedBox(height: 12),
+                                          _buildTipItem(
+                                            'Pastikan semua bahan tercatat dengan lengkap',
+                                          ),
+                                          _buildTipItem(
+                                            'Perhatikan satuan yang digunakan untuk konsistensi',
+                                          ),
+                                          _buildTipItem(
+                                            'Target penjualan membantu alokasi biaya tetap yang akurat',
+                                          ),
+                                          _buildTipItem(
+                                            'Biaya tenaga kerja dapat meningkatkan akurasi perhitungan',
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+              ),
+              
+              Positioned(
+                top: 16,
+                right: 16,
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.9),
+                    shape: BoxShape.circle,
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.1),
+                        blurRadius: 8,
+                        offset: const Offset(0, 2),
+                      ),
+                    ],
+                  ),
+                  child: IconButton(
+                    icon: Icon(
+                      Icons.close_rounded,
+                      color: primaryColor,
+                      size: 24,
+                    ),
+                    onPressed: () => Navigator.pop(context),
+                    tooltip: 'Tutup',
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildEnhancedHelpStep({
+    required int number,
+    required IconData icon,
+    required String title,
+    required String description,
+    required Color color,
+  }) {
+    return Container(
+      width: double.infinity,
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+        border: Border.all(
+          color: color.withOpacity(0.1),
+          width: 1,
+        ),
+      ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 40,
+            height: 40,
+            decoration: BoxDecoration(
+              gradient: LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [
+                  color,
+                  Color.alphaBlend(color.withOpacity(0.7), color),
+                ],
+              ),
+              shape: BoxShape.circle,
+              boxShadow: [
+                BoxShadow(
+                  color: color.withOpacity(0.3),
+                  blurRadius: 8,
+                  offset: const Offset(0, 3),
+                ),
+              ],
+            ),
+            child: Center(
+              child: Text(
+                number.toString(),
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ),
+          ),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  children: [
+                    Icon(
+                      icon,
+                      color: color,
+                      size: 20,
+                    ),
+                    const SizedBox(width: 8),
+                    Text(
+                      title,
+                      style: TextStyle(
+                        color: primaryColor,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                      ),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Text(
+                  description,
+                  style: TextStyle(
+                    color: Colors.grey[700],
+                    fontSize: 14,
+                    fontWeight: FontWeight.w400,
+                    height: 1.4,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildTipItem(String text) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 6),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Container(
+            width: 6,
+            height: 6,
+            margin: const EdgeInsets.only(top: 8),
+            decoration: BoxDecoration(
+              color: primaryColor,
+              shape: BoxShape.circle,
+            ),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              text,
+              style: TextStyle(
+                color: primaryColor,
+                fontSize: 13,
+                fontWeight: FontWeight.w400,
+                height: 1.4,
+              ),
+            ),
+          ),
+        ],
       ),
     );
   }
@@ -1303,4 +1742,31 @@ class _HomeScreenState extends State<HomeScreen> {
       );
     }
   }
+}
+
+// Custom Painter untuk background dialog yang lebih menarik
+class _HelpDialogPainter extends CustomPainter {
+  final Color primaryColor;
+
+  _HelpDialogPainter(this.primaryColor);
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = primaryColor.withOpacity(0.03)
+      ..style = PaintingStyle.fill;
+
+    final path = Path()
+      ..moveTo(0, size.height * 0.3)
+      ..quadraticBezierTo(size.width * 0.3, size.height * 0.2, size.width * 0.6, size.height * 0.25)
+      ..quadraticBezierTo(size.width * 0.8, size.height * 0.3, size.width, size.height * 0.25)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height)
+      ..close();
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) => false;
 }

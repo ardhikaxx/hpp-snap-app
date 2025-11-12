@@ -42,7 +42,7 @@ class _SplashScreenState extends State<SplashScreen> {
             right: 0,
             child: Image.asset(
               'assets/ilustrasi/ilustrations.png',
-              height: 225,
+              height: 180,
               fit: BoxFit.contain,
             ),
           ),

@@ -30,63 +30,270 @@ class ResultScreen extends StatelessWidget {
   final Color primaryColorLight = const Color(0xFF0F84D4);
   final Color primaryLight = const Color(0xFFE8F2FF);
   final Color backgroundColor = const Color(0xFFF8FBFF);
+  final Color successColor = const Color(0xFF00C853);
+  final Color warningColor = const Color(0xFFFF9800);
+  final Color infoColor = const Color(0xFF2196F3);
+  final Color accentColor = const Color(0xFFFF6B35);
 
   @override
   Widget build(BuildContext context) {
-    double saranHargaJual = hpp * 1.3;
-    double saranHargaJual2 = hpp * 1.5;
-    double saranHargaJual3 = hpp * 2.0;
+    double validHpp = hpp;
+    if (hpp.isNaN || hpp.isInfinite || hpp < 0) {
+      validHpp = 0;
+    }
+
+    // PERBAIKAN: Pastikan perhitungan saran harga aman
+    double saranHargaJual = _calculateSafePrice(validHpp, 1.3);
+    double saranHargaJual2 = _calculateSafePrice(validHpp, 1.5);
+    double saranHargaJual3 = _calculateSafePrice(validHpp, 2.0);
 
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'Hasil Perhitungan HPP',
-          style: TextStyle(fontWeight: FontWeight.bold, fontSize: 20),
-        ),
-        centerTitle: true,
-        toolbarHeight: 80,
-        backgroundColor: primaryColor,
-        foregroundColor: Colors.white,
-        elevation: 0,
-        shape: const RoundedRectangleBorder(
-          borderRadius: BorderRadius.vertical(bottom: Radius.circular(18)),
-        ),
-        leading: Padding(
-          padding: const EdgeInsets.only(left: 12, top: 18, bottom: 18),
-          child: InkWell(
-            onTap: () => Navigator.pop(context),
-            borderRadius: BorderRadius.circular(12),
-            child: Container(
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(16),
+      backgroundColor: backgroundColor,
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 200,
+            collapsedHeight: 80,
+            pinned: true,
+            floating: false,
+            backgroundColor: primaryColor,
+            foregroundColor: Colors.white,
+            elevation: 8,
+            shape: const ContinuousRectangleBorder(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(40),
+                bottomRight: Radius.circular(40),
               ),
-              child: Center(
-                child: FaIcon(
-                  FontAwesomeIcons.chevronLeft,
-                  color: primaryColor,
-                  fontWeight: FontWeight.bold,
-                  size: 20,
+            ),
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 12, top: 6, bottom: 6),
+              child: InkWell(
+                onTap: () => Navigator.pop(context),
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Center(
+                    child: FaIcon(
+                      FontAwesomeIcons.chevronLeft,
+                      color: primaryColor,
+                      fontWeight: FontWeight.bold,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            title: const Text(
+              'Hasil Perhitungan',
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+            ),
+            centerTitle: true,
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [primaryColor, primaryColorLight],
+                  ),
+                ),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: -50,
+                      right: -30,
+                      child: Container(
+                        width: 150,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: -20,
+                      left: -20,
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 60),
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.15),
+                              borderRadius: BorderRadius.circular(20),
+                              border: Border.all(
+                                color: Colors.white.withOpacity(0.3),
+                              ),
+                            ),
+                            child: const Icon(
+                              Icons.analytics_rounded,
+                              color: Colors.white,
+                              size: 40,
+                            ),
+                          ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'HPP SNAP',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.9),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
                 ),
               ),
             ),
           ),
-        ),
+
+          SliverList(
+            delegate: SliverChildListDelegate([
+              const SizedBox(height: 20),
+              _buildHPPCard(validHpp),
+              const SizedBox(height: 16),
+              _buildInfoProduk(),
+              const SizedBox(height: 16),
+              _buildRingkasanHPP(),
+              const SizedBox(height: 16),
+              _buildDetailBiaya(),
+              const SizedBox(height: 16),
+              _buildSaranHarga(
+                saranHargaJual,
+                saranHargaJual2,
+                saranHargaJual3,
+                validHpp,
+              ),
+              const SizedBox(height: 16),
+              _buildActionButtons(context),
+              const SizedBox(height: 30),
+            ]),
+          ),
+        ],
       ),
-      backgroundColor: backgroundColor,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: ListView(
+    );
+  }
+
+  double _calculateSafePrice(double basePrice, double multiplier) {
+    if (basePrice.isNaN || basePrice.isInfinite || basePrice <= 0) {
+      return 0;
+    }
+    
+    try {
+      double result = basePrice * multiplier;
+      if (result.isNaN || result.isInfinite) {
+        return 0;
+      }
+      return result;
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  Widget _buildHPPCard(double hpp) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Container(
+        padding: const EdgeInsets.all(24),
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            colors: [primaryColor, primaryColorLight],
+          ),
+          borderRadius: BorderRadius.circular(24),
+          boxShadow: [
+            BoxShadow(
+              color: primaryColor.withOpacity(0.4),
+              blurRadius: 20,
+              offset: const Offset(0, 8),
+            ),
+          ],
+        ),
+        child: Column(
           children: [
-            _buildInfoProduk(),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.price_change_rounded,
+                  color: Colors.white.withOpacity(0.9),
+                  size: 20,
+                ),
+                const SizedBox(width: 8),
+                Text(
+                  'Harga Pokok Produksi',
+                  style: TextStyle(
+                    color: Colors.white.withOpacity(0.9),
+                    fontSize: 16,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+              ],
+            ),
             const SizedBox(height: 16),
-            _buildRingkasanHPP(),
+            Text(
+              'Rp ${_formatCurrency(hpp)}',
+              style: const TextStyle(
+                color: Colors.white,
+                fontSize: 36,
+                fontWeight: FontWeight.w800,
+                letterSpacing: 1.2,
+              ),
+              textAlign: TextAlign.center,
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'per produk',
+              style: TextStyle(
+                color: Colors.white.withOpacity(0.8),
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
             const SizedBox(height: 16),
-            _buildDetailBiaya(),
-            const SizedBox(height: 16),
-            _buildSaranHarga(saranHargaJual, saranHargaJual2, saranHargaJual3),
-            const SizedBox(height: 20),
-            _buildActionButtons(context),
+            Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.15),
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(
+                    Icons.info_outline_rounded,
+                    color: Colors.white.withOpacity(0.9),
+                    size: 16,
+                  ),
+                  const SizedBox(width: 6),
+                  Text(
+                    'Total biaya produksi per unit',
+                    style: TextStyle(
+                      color: Colors.white.withOpacity(0.9),
+                      fontSize: 12,
+                    ),
+                  ),
+                ],
+              ),
+            ),
           ],
         ),
       ),
@@ -94,111 +301,288 @@ class ResultScreen extends StatelessWidget {
   }
 
   Widget _buildInfoProduk() {
-    return Card(
-      elevation: 2,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(FontAwesomeIcons.boxesPacking, color: primaryColor),
-                const SizedBox(width: 12),
-                const Text(
-                  'Informasi Produk',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-                ),
-              ],
-            ),
-            const SizedBox(height: 16),
-            _buildInfoRow('Nama Produk', namaProduk.isEmpty ? '-' : namaProduk),
-            const SizedBox(height: 8),
-            _buildInfoRow('Kategori', kategori.isEmpty ? '-' : kategori),
-          ],
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Card(
+        elevation: 4,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: primaryLight,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.shopping_bag_rounded,
+                      color: primaryColor,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Informasi Produk',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              _buildEnhancedInfoRow(
+                'Nama Produk',
+                namaProduk.isEmpty ? '-' : namaProduk,
+                Icons.label_rounded,
+              ),
+              const SizedBox(height: 12),
+              _buildEnhancedInfoRow(
+                'Kategori',
+                kategori.isEmpty ? '-' : kategori,
+                Icons.category_rounded,
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildInfoRow(String label, String value) {
-    return Row(
-      children: [
-        Text('$label: ', style: const TextStyle(fontWeight: FontWeight.w500)),
-        const SizedBox(width: 8),
-        Expanded(
-          child: Text(
-            value,
-            style: TextStyle(color: primaryColorLight, fontSize: 16, fontWeight: FontWeight.w700),
+  Widget _buildEnhancedInfoRow(String label, String value, IconData icon) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration: BoxDecoration(
+        color: primaryLight.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: primaryColor.withOpacity(0.1)),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: primaryColor, size: 20),
+          const SizedBox(width: 12),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                label,
+                style: TextStyle(
+                  color: Colors.grey[600],
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+              const SizedBox(height: 4),
+              Text(
+                value,
+                style: TextStyle(
+                  color: primaryColor,
+                  fontSize: 16,
+                  fontWeight: FontWeight.w700,
+                ),
+              ),
+            ],
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildRingkasanHPP() {
-    return Card(
-      elevation: 2,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.analytics, color: primaryColor),
-                const SizedBox(width: 12),
-                const Text(
-                  'Ringkasan HPP',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    double validHpp = hpp;
+    if (hpp.isNaN || hpp.isInfinite || hpp <= 0) {
+      validHpp = 1;
+    }
+
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Card(
+        elevation: 4,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: primaryLight,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.pie_chart_rounded,
+                      color: primaryColor,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Ringkasan Biaya',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+              _buildEnhancedHPPItem(
+                'Biaya Bahan Baku',
+                totalBiayaBahan,
+                FontAwesomeIcons.boxesPacking,
+                infoColor,
+                validHpp,
+              ),
+              if (totalBiayaTenagaKerja > 0)
+                _buildEnhancedHPPItem(
+                  'Biaya Tenaga Kerja',
+                  totalBiayaTenagaKerja,
+                  Icons.engineering_rounded,
+                  warningColor,
+                  validHpp,
                 ),
-              ],
-            ),
-            const SizedBox(height: 20),
-            _buildHPPItem('Total Biaya Bahan', totalBiayaBahan),
-            if (totalBiayaTenagaKerja > 0)
-              _buildHPPItem('Biaya Tenaga Kerja', totalBiayaTenagaKerja),
-            _buildHPPItem('Total Alokasi Biaya Tetap', totalAlokasiBiayaTetap),
-            const Divider(thickness: 1, color: Colors.grey),
-            _buildHPPItem('Harga Pokok Penjualan (HPP)', hpp, isTotal: true),
-          ],
+              _buildEnhancedHPPItem(
+                'Alokasi Biaya Tetap',
+                totalAlokasiBiayaTetap,
+                Icons.business_center_rounded,
+                successColor,
+                validHpp,
+              ),
+              const SizedBox(height: 16),
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.centerLeft,
+                    end: Alignment.centerRight,
+                    colors: [
+                      primaryColor.withOpacity(0.1),
+                      primaryColorLight.withOpacity(0.1),
+                    ],
+                  ),
+                  borderRadius: BorderRadius.circular(16),
+                  border: Border.all(
+                    color: primaryColor.withOpacity(0.2),
+                    width: 2,
+                  ),
+                ),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(6),
+                          decoration: BoxDecoration(
+                            color: primaryColor,
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(
+                            Icons.calculate_rounded,
+                            color: Colors.white,
+                            size: 20,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Text(
+                          'Total HPP:',
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
+                        ),
+                      ],
+                    ),
+                    Text(
+                      'Rp ${_formatCurrency(hpp)}',
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        fontSize: 18,
+                        color: primaryColor,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildHPPItem(String label, double value, {bool isTotal = false}) {
+  Widget _buildEnhancedHPPItem(
+    String label,
+    double value,
+    IconData icon,
+    Color color,
+    double totalHpp,
+  ) {
+    double percentage = 0;
+    if (totalHpp > 0 && value > 0) {
+      percentage = (value / totalHpp) * 100;
+      if (percentage.isNaN || percentage.isInfinite) {
+        percentage = 0;
+      }
+    }
+
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 6),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      margin: const EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: isTotal ? primaryLight : Colors.transparent,
-        borderRadius: BorderRadius.circular(8),
-        border: isTotal
-            ? Border.all(color: primaryColor.withOpacity(0.2))
-            : null,
+        color: color.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withOpacity(0.2)),
       ),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(
-            label,
-            style: TextStyle(
-              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              fontSize: isTotal ? 16 : 14,
-              color: isTotal ? primaryColor : Colors.black87,
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, color: color, size: 18),
+          ),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  label,
+                  style: TextStyle(
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey[700],
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                LinearProgressIndicator(
+                  value: percentage / 100,
+                  backgroundColor: color.withOpacity(0.2),
+                  valueColor: AlwaysStoppedAnimation<Color>(color),
+                  borderRadius: BorderRadius.circular(4),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  '${percentage.toStringAsFixed(1)}% dari total HPP',
+                  style: TextStyle(color: Colors.grey[600], fontSize: 11),
+                ),
+              ],
             ),
           ),
+          const SizedBox(width: 12),
           Text(
             'Rp ${_formatCurrency(value)}',
             style: TextStyle(
-              fontWeight: isTotal ? FontWeight.bold : FontWeight.normal,
-              fontSize: isTotal ? 18 : 14,
-              color: isTotal ? primaryColor : Colors.black87,
+              fontWeight: FontWeight.bold,
+              color: color,
+              fontSize: 14,
             ),
           ),
         ],
@@ -207,105 +591,151 @@ class ResultScreen extends StatelessWidget {
   }
 
   Widget _buildDetailBiaya() {
-    return Card(
-      elevation: 2,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
-              children: [
-                Icon(Icons.list_alt, color: primaryColor),
-                const SizedBox(width: 12),
-                const Text(
-                  'Detail Biaya',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Card(
+        elevation: 4,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: primaryLight,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.list_alt_rounded,
+                      color: primaryColor,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Detail Biaya',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 20),
+
+              if (listBahan.isNotEmpty) ...[
+                _buildDetailSection(
+                  'Bahan Baku',
+                  Icons.inventory_2_rounded,
+                  infoColor,
+                  listBahan
+                      .map(
+                        (bahan) => _buildDetailItem(
+                          '${bahan.nama.isEmpty ? 'Bahan' : bahan.nama}',
+                          '${bahan.jumlahPakai} ${bahan.satuan}',
+                          bahan.biayaProduk,
+                          infoColor,
+                        ),
+                      )
+                      .toList(),
+                ),
+                const SizedBox(height: 20),
+              ],
+
+              if (totalBiayaTenagaKerja > 0) ...[
+                _buildDetailSection(
+                  'Tenaga Kerja',
+                  Icons.engineering_rounded,
+                  warningColor,
+                  [
+                    _buildDetailItemWithSubtitle(
+                      'Tenaga Kerja',
+                      biayaTenagaKerja?.keterangan.isNotEmpty ?? false
+                          ? biayaTenagaKerja!.keterangan
+                          : 'Biaya pembuatan per produk',
+                      totalBiayaTenagaKerja,
+                      warningColor,
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 20),
+              ],
+
+              if (listBiayaTetap.isNotEmpty) ...[
+                _buildDetailSection(
+                  'Biaya Tetap',
+                  Icons.business_center_rounded,
+                  successColor,
+                  listBiayaTetap
+                      .map(
+                        (biaya) => _buildDetailItem(
+                          biaya.nama.isEmpty ? 'Biaya Tetap' : biaya.nama,
+                          'Alokasi per produk',
+                          biaya.alokasiPerProduk,
+                          successColor,
+                        ),
+                      )
+                      .toList(),
                 ),
               ],
-            ),
-            const SizedBox(height: 20),
-            _buildSectionTitle('Biaya Bahan:'),
-            ...listBahan.map((bahan) {
-              return _buildDetailItem(
-                '${bahan.nama.isEmpty ? 'Bahan' : bahan.nama} (${bahan.jumlahPakai} ${bahan.satuan})',
-                bahan.biayaProduk,
-              );
-            }).toList(),
-
-            if (totalBiayaTenagaKerja > 0) ...[
-              const SizedBox(height: 16),
-              _buildSectionTitle('Biaya Tenaga Kerja:'),
-              _buildDetailItemWithSubtitle(
-                'Tenaga Kerja',
-                totalBiayaTenagaKerja,
-                biayaTenagaKerja?.keterangan.isNotEmpty ?? false
-                    ? biayaTenagaKerja!.keterangan
-                    : null,
-              ),
             ],
-            const SizedBox(height: 16),
-            _buildSectionTitle('Biaya Tetap:'),
-            ...listBiayaTetap.map((biaya) {
-              return _buildDetailItem(
-                biaya.nama.isEmpty ? 'Biaya Tetap' : biaya.nama,
-                biaya.alokasiPerProduk,
-              );
-            }).toList(),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildDetailSection(
+    String title,
+    IconData icon,
+    Color color,
+    List<Widget> items,
+  ) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.1),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: color, size: 18),
+            ),
+            const SizedBox(width: 8),
+            Text(
+              title,
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: color,
+                fontSize: 16,
+              ),
+            ),
           ],
         ),
-      ),
+        const SizedBox(height: 12),
+        ...items,
+      ],
     );
   }
 
-  Widget _buildSectionTitle(String title) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 8.0),
-      child: Text(
-        title,
-        style: TextStyle(
-          fontWeight: FontWeight.bold,
-          color: primaryColor,
-          fontSize: 16,
-        ),
-      ),
-    );
-  }
-
-  Widget _buildDetailItem(String label, double value) {
-    return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
-      decoration: BoxDecoration(
-        color: primaryLight,
-        borderRadius: BorderRadius.circular(8),
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Expanded(child: Text(label)),
-          Text(
-            'Rp ${_formatCurrency(value)}',
-            style: const TextStyle(fontWeight: FontWeight.w500),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildDetailItemWithSubtitle(
+  Widget _buildDetailItem(
     String label,
+    String subtitle,
     double value,
-    String? subtitle,
+    Color color,
   ) {
     return Container(
-      margin: const EdgeInsets.symmetric(vertical: 4),
-      padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey[50],
-        borderRadius: BorderRadius.circular(8),
+        color: color.withOpacity(0.03),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.1)),
       ),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -314,126 +744,284 @@ class ResultScreen extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(label),
-                if (subtitle != null)
-                  Text(
-                    subtitle,
-                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
                   ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                ),
               ],
             ),
           ),
           Text(
             'Rp ${_formatCurrency(value)}',
-            style: const TextStyle(fontWeight: FontWeight.w500),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: color,
+              fontSize: 14,
+            ),
           ),
         ],
       ),
     );
   }
 
-  Widget _buildSaranHarga(double harga1, double harga2, double harga3) {
-    return Card(
-      elevation: 2,
-      color: Colors.white,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-      child: Padding(
-        padding: const EdgeInsets.all(20.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Row(
+  Widget _buildDetailItemWithSubtitle(
+    String label,
+    String subtitle,
+    double value,
+    Color color,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: color.withOpacity(0.03),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.1)),
+      ),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Icon(Icons.attach_money, color: primaryColor),
-                const SizedBox(width: 12),
-                const Text(
-                  'Saran Harga Jual',
-                  style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.w600,
+                    fontSize: 14,
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  subtitle,
+                  style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
               ],
             ),
-            const SizedBox(height: 8),
-            const Text(
-              'Berikut beberapa pilihan harga jual berdasarkan markup yang umum digunakan:',
-              style: TextStyle(color: Colors.grey, fontSize: 14),
+          ),
+          Text(
+            'Rp ${_formatCurrency(value)}',
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              color: color,
+              fontSize: 14,
             ),
-            const SizedBox(height: 16),
-            _buildSaranHargaItem(
-              'Markup 30% (Konservatif)',
-              harga1,
-              FontAwesomeIcons.arrowDownShortWide,
-            ),
-            _buildSaranHargaItem(
-              'Markup 50% (Standar)',
-              harga2,
-              FontAwesomeIcons.arrowRightArrowLeft,
-            ),
-            _buildSaranHargaItem(
-              'Markup 100% (Agresif)',
-              harga3,
-              FontAwesomeIcons.arrowUpWideShort,
-            ),
-          ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSaranHarga(double harga1, double harga2, double harga3, double hpp) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Card(
+        elevation: 4,
+        color: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
+        child: Padding(
+          padding: const EdgeInsets.all(20.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(8),
+                    decoration: BoxDecoration(
+                      color: primaryLight,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.trending_up_rounded,
+                      color: primaryColor,
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  const Text(
+                    'Saran Harga Jual',
+                    style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Pilih strategi harga berdasarkan target pasar dan margin yang diinginkan',
+                style: TextStyle(color: Colors.grey[600], fontSize: 14),
+              ),
+              const SizedBox(height: 20),
+              _buildEnhancedSaranHargaItem(
+                'Konservatif',
+                '30% Markup',
+                harga1,
+                Icons.safety_check_rounded,
+                const Color(0xFF4CAF50),
+                'Risiko rendah, pasar kompetitif',
+                hpp,
+              ),
+              _buildEnhancedSaranHargaItem(
+                'Standar',
+                '50% Markup',
+                harga2,
+                Icons.balance_rounded,
+                const Color(0xFF2196F3),
+                'Seimbang, pasar menengah',
+                hpp,
+              ),
+              _buildEnhancedSaranHargaItem(
+                'Agresif',
+                '100% Markup',
+                harga3,
+                Icons.rocket_launch_rounded,
+                const Color(0xFFFF5722),
+                'Premium, pasar niche',
+                hpp,
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 
-  Widget _buildSaranHargaItem(String label, double harga, IconData icon) {
-    double keuntungan = harga - hpp;
-    double margin = (keuntungan / harga) * 100;
+  Widget _buildEnhancedSaranHargaItem(
+    String strategy,
+    String markup,
+    double harga,
+    IconData icon,
+    Color color,
+    String description,
+    double hpp,
+  ) {
+    double keuntungan = 0;
+    double margin = 0;
+    
+    if (harga > 0 && hpp > 0) {
+      keuntungan = harga - hpp;
+      if (keuntungan > 0 && harga > 0) {
+        margin = (keuntungan / harga) * 100;
+        if (margin.isNaN || margin.isInfinite) {
+          margin = 0;
+        }
+      }
+    }
 
     return Container(
       margin: const EdgeInsets.only(bottom: 16),
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: primaryLight,
-        border: Border.all(color: primaryColor.withOpacity(0.2)),
-        borderRadius: BorderRadius.circular(12),
+        color: color.withOpacity(0.05),
+        borderRadius: BorderRadius.circular(16),
+        border: Border.all(color: color.withOpacity(0.2), width: 2),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
             children: [
-              Icon(icon, color: primaryColor, size: 16),
+              Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: color,
+                  borderRadius: BorderRadius.circular(8),
+                ),
+                child: Icon(icon, color: Colors.white, size: 16),
+              ),
               const SizedBox(width: 8),
-              Text(
-                label,
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                  color: primaryColor,
-                  fontSize: 16,
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      strategy,
+                      style: TextStyle(
+                        fontWeight: FontWeight.bold,
+                        color: color,
+                        fontSize: 16,
+                      ),
+                    ),
+                    Text(
+                      markup,
+                      style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                    ),
+                  ],
                 ),
               ),
             ],
           ),
-          const SizedBox(height: 8),
-          _buildSaranRow('Harga Jual:', 'Rp ${_formatCurrency(harga)}', true),
-          _buildSaranRow(
-            'Keuntungan:',
-            'Rp ${_formatCurrency(keuntungan)}',
-            false,
+          const SizedBox(height: 12),
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Column(
+              children: [
+                _buildPriceRow('Harga Jual', harga, true, color),
+                _buildPriceRow('Keuntungan', keuntungan, false, color),
+                _buildPriceRow('Margin', margin, false, color, isPercent: true),
+              ],
+            ),
           ),
-          _buildSaranRow('Margin:', '${margin.toStringAsFixed(1)}%', false),
+          const SizedBox(height: 8),
+          Text(
+            description,
+            style: TextStyle(
+              color: Colors.grey[600],
+              fontSize: 12,
+              fontStyle: FontStyle.italic,
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _buildSaranRow(String label, String value, bool isBold) {
+  Widget _buildPriceRow(
+    String label,
+    double value,
+    bool isMain,
+    Color color, {
+    bool isPercent = false,
+  }) {
+    double validValue = value;
+    if (value.isNaN || value.isInfinite) {
+      validValue = 0;
+    }
+
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4.0),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Colors.black87)),
           Text(
-            value,
+            label,
             style: TextStyle(
-              fontWeight: isBold ? FontWeight.bold : FontWeight.w600,
-              color: isBold ? primaryColor : Colors.black87,
-              fontSize: isBold ? 16 : 14,
+              color: Colors.grey[700],
+              fontWeight: isMain ? FontWeight.w600 : FontWeight.normal,
+            ),
+          ),
+          Text(
+            isPercent
+                ? '${validValue.toStringAsFixed(1)}%'
+                : 'Rp ${_formatCurrency(validValue)}',
+            style: TextStyle(
+              fontWeight: isMain ? FontWeight.bold : FontWeight.w600,
+              color: isMain ? color : Colors.grey[700],
+              fontSize: isMain ? 16 : 14,
             ),
           ),
         ],
@@ -442,60 +1030,104 @@ class ResultScreen extends StatelessWidget {
   }
 
   Widget _buildActionButtons(BuildContext context) {
-    return Row(
-      children: [
-        Expanded(
-          child: OutlinedButton(
-            onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const HomeScreen()),
-                (route) => false,
-              );
-            },
-            style: OutlinedButton.styleFrom(
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 20),
+      child: Row(
+        children: [
+          Expanded(
+            child: Container(
+              height: 56,
+              decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(16),
+                border: Border.all(color: primaryColor.withOpacity(0.3)),
               ),
-              side: BorderSide(color: primaryColor),
-            ),
-            child: Text(
-              'Hitung Lagi',
-              style: TextStyle(
-                color: primaryColor,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
+              child: Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+                child: InkWell(
+                  onTap: () {
+                    Navigator.pushAndRemoveUntil(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HomeScreen(),
+                      ),
+                      (route) => false,
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.replay_rounded, color: primaryColor),
+                      const SizedBox(width: 8),
+                      Text(
+                        'Hitung Lagi',
+                        style: TextStyle(
+                          color: primaryColor,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
               ),
             ),
           ),
-        ),
-        const SizedBox(width: 16),
-        Expanded(
-          child: ElevatedButton(
-            onPressed: () {
-              _showSaveDialog(context);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: primaryColor,
-              foregroundColor: Colors.white,
-              padding: const EdgeInsets.symmetric(vertical: 16),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          const SizedBox(width: 16),
+          Expanded(
+            child: Container(
+              height: 56,
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [primaryColor, primaryColorLight],
+                ),
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    color: primaryColor.withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 4),
+                  ),
+                ],
               ),
-              elevation: 4,
-            ),
-            child: const Text(
-              'Simpan',
-              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+              child: Material(
+                color: Colors.transparent,
+                borderRadius: BorderRadius.circular(16),
+                child: InkWell(
+                  onTap: () => _showSaveDialog(context),
+                  borderRadius: BorderRadius.circular(16),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(Icons.save_rounded, color: Colors.white),
+                      const SizedBox(width: 8),
+                      const Text(
+                        'Simpan',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 16,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
     );
   }
 
   String _formatCurrency(double value) {
+    if (value.isNaN || value.isInfinite) {
+      return '0';
+    }
+    
     return value
         .toStringAsFixed(0)
         .replaceAllMapped(
@@ -507,28 +1139,55 @@ class ResultScreen extends StatelessWidget {
   void _showSaveDialog(BuildContext context) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Row(
-          children: [
-            Icon(Icons.save, color: primaryColor),
-            const SizedBox(width: 8),
-            const Text('Simpan Perhitungan'),
-          ],
-        ),
-        content: const Text('Fitur penyimpanan akan segera tersedia!'),
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: Text(
-              'OK',
-              style: TextStyle(
-                color: primaryColor,
-                fontWeight: FontWeight.bold,
+      builder: (context) => Dialog(
+        backgroundColor: Colors.white,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
+        child: Padding(
+          padding: const EdgeInsets.all(24),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: primaryColor.withOpacity(0.1),
+                  shape: BoxShape.circle,
+                ),
+                child: Icon(Icons.save_rounded, color: primaryColor, size: 32),
               ),
-            ),
+              const SizedBox(height: 16),
+              const Text(
+                'Simpan Perhitungan',
+                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              ),
+              const SizedBox(height: 8),
+              Text(
+                'Fitur penyimpanan akan segera tersedia!',
+                textAlign: TextAlign.center,
+                style: TextStyle(color: Colors.grey[600], fontSize: 14),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryColor,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  child: const Text(
+                    'Mengerti',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

@@ -1106,11 +1106,24 @@ class _HomeScreenState extends State<HomeScreen> {
     double jumlahBeli,
     double jumlahPakai,
   ) {
-    if (jumlahBeli > 0 && totalHarga > 0) {
-      double biayaPerUnit = totalHarga / jumlahBeli;
-      return biayaPerUnit * jumlahPakai;
+    // PERBAIKAN: Handle division by zero dan nilai NaN/Infinity
+    if (jumlahBeli <= 0 || totalHarga <= 0 || jumlahPakai <= 0) {
+      return 0;
     }
-    return 0;
+    
+    try {
+      double biayaPerUnit = totalHarga / jumlahBeli;
+      double result = biayaPerUnit * jumlahPakai;
+      
+      // Pastikan hasilnya valid (bukan NaN atau Infinity)
+      if (result.isNaN || result.isInfinite) {
+        return 0;
+      }
+      
+      return result;
+    } catch (e) {
+      return 0;
+    }
   }
 
   Widget _buildBiayaTenagaKerjaSection() {
@@ -1638,22 +1651,62 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHitungButton() {
+    bool hasData = listBahan.isNotEmpty || listBiayaTetap.isNotEmpty || showBiayaTenagaKerja;
+    
     return Container(
-      margin: const EdgeInsets.symmetric(horizontal: 20),
-      child: ElevatedButton(
-        onPressed: _hitungHPP,
-        style: ElevatedButton.styleFrom(
-          backgroundColor: primaryColor,
-          foregroundColor: Colors.white,
-          padding: const EdgeInsets.symmetric(vertical: 16),
-          textStyle: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(16),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: hasData
+            ? [
+                BoxShadow(
+                  color: primaryColor.withOpacity(0.3),
+                  blurRadius: 15,
+                  offset: const Offset(0, 6),
+                ),
+              ]
+            : null,
+      ),
+      child: Material(
+        color: Colors.transparent,
+        child: InkWell(
+          onTap: hasData ? _hitungHPP : null,
+          borderRadius: BorderRadius.circular(20),
+          child: Container(
+            width: double.infinity,
+            padding: const EdgeInsets.symmetric(vertical: 18),
+            decoration: BoxDecoration(
+              gradient: hasData
+                  ? LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [primaryColor, primaryColorLight],
+                    )
+                  : LinearGradient(
+                      colors: [Colors.grey.shade400, Colors.grey.shade500],
+                    ),
+              borderRadius: BorderRadius.circular(20),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(
+                  Icons.calculate_rounded,
+                  color: Colors.white,
+                  size: 24,
+                ),
+                const SizedBox(width: 12),
+                Text(
+                  hasData ? 'Hitung HPP & Saran Harga' : 'Tambahkan Data Terlebih Dahulu',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
+            ),
           ),
-          elevation: 2,
-          shadowColor: primaryColor.withOpacity(0.3),
         ),
-        child: Text('Hitung HPP & Saran Harga'),
       ),
     );
   }
@@ -1692,13 +1745,27 @@ class _HomeScreenState extends State<HomeScreen> {
 
   double _hitungSaranAlokasi(double totalBiaya) {
     double target = double.tryParse(targetPenjualanController.text) ?? 0;
-    if (target > 0) {
-      return totalBiaya / target;
+    if (target <= 0 || totalBiaya <= 0) {
+      return 0;
     }
-    return 0;
+    
+    try {
+      double result = totalBiaya / target;
+      if (result.isNaN || result.isInfinite) {
+        return 0;
+      }
+      
+      return result;
+    } catch (e) {
+      return 0;
+    }
   }
 
   String _formatCurrency(double value) {
+    if (value.isNaN || value.isInfinite) {
+      return '0';
+    }
+    
     return value
         .toStringAsFixed(0)
         .replaceAllMapped(
@@ -1711,18 +1778,38 @@ class _HomeScreenState extends State<HomeScreen> {
     if (_formKey.currentState!.validate()) {
       double totalBiayaBahan = listBahan.fold(
         0,
-        (sum, bahan) => sum + bahan.biayaProduk,
+        (sum, bahan) {
+          double biaya = bahan.biayaProduk;
+          if (biaya.isNaN || biaya.isInfinite) {
+            return sum;
+          }
+          return sum + biaya;
+        },
       );
 
       double totalAlokasiBiayaTetap = listBiayaTetap.fold(
         0,
-        (sum, biaya) => sum + biaya.alokasiPerProduk,
+        (sum, biaya) {
+          double alokasi = biaya.alokasiPerProduk;
+          if (alokasi.isNaN || alokasi.isInfinite) {
+            return sum;
+          }
+          return sum + alokasi;
+        },
       );
 
       double totalBiayaTenagaKerja = biayaTenagaKerja?.biayaPerProduk ?? 0;
+      
+      if (totalBiayaTenagaKerja.isNaN || totalBiayaTenagaKerja.isInfinite) {
+        totalBiayaTenagaKerja = 0;
+      }
 
       double hpp =
           totalBiayaBahan + totalAlokasiBiayaTetap + totalBiayaTenagaKerja;
+      
+      if (hpp.isNaN || hpp.isInfinite) {
+        hpp = 0;
+      }
 
       Navigator.push(
         context,
@@ -1744,7 +1831,6 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 }
 
-// Custom Painter untuk background dialog yang lebih menarik
 class _HelpDialogPainter extends CustomPainter {
   final Color primaryColor;
 

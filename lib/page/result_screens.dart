@@ -132,27 +132,37 @@ class ResultScreen extends StatelessWidget {
                         children: [
                           const SizedBox(height: 60),
                           Container(
-                            padding: const EdgeInsets.all(16),
+                            width: 80,
+                            height: 80,
                             decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.15),
-                              borderRadius: BorderRadius.circular(20),
-                              border: Border.all(
-                                color: Colors.white.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(60),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(60),
+                              child: Image.asset(
+                                'assets/icons/icon.png',
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    color: Colors.white,
+                                    child: const Icon(
+                                      Icons.image,
+                                      color: Color(0xFF0F6CCB),
+                                      size: 50,
+                                    ),
+                                  );
+                                },
                               ),
                             ),
-                            child: const Icon(
-                              Icons.analytics_rounded,
-                              color: Colors.white,
-                              size: 40,
-                            ),
                           ),
-                          const SizedBox(height: 12),
                           Text(
                             'HPP SNAP',
                             style: TextStyle(
-                              color: Colors.white.withOpacity(0.9),
-                              fontSize: 16,
-                              fontWeight: FontWeight.w600,
+                              color: Colors.white,
+                              fontSize: 26,
+                              fontWeight: FontWeight.w800,
+                              fontFamily: 'SuperTrend',
+                              letterSpacing: 1.2,
                             ),
                           ),
                         ],
@@ -195,7 +205,7 @@ class ResultScreen extends StatelessWidget {
     if (basePrice.isNaN || basePrice.isInfinite || basePrice <= 0) {
       return 0;
     }
-    
+
     try {
       double result = basePrice * multiplier;
       if (result.isNaN || result.isInfinite) {
@@ -823,7 +833,12 @@ class ResultScreen extends StatelessWidget {
     );
   }
 
-  Widget _buildSaranHarga(double harga1, double harga2, double harga3, double hpp) {
+  Widget _buildSaranHarga(
+    double harga1,
+    double harga2,
+    double harga3,
+    double hpp,
+  ) {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Card(
@@ -907,7 +922,7 @@ class ResultScreen extends StatelessWidget {
   ) {
     double keuntungan = 0;
     double margin = 0;
-    
+
     if (harga > 0 && hpp > 0) {
       keuntungan = harga - hpp;
       if (keuntungan > 0 && harga > 0) {
@@ -1127,7 +1142,7 @@ class ResultScreen extends StatelessWidget {
     if (value.isNaN || value.isInfinite) {
       return '0';
     }
-    
+
     return value
         .toStringAsFixed(0)
         .replaceAllMapped(

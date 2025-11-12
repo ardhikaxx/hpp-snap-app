@@ -209,10 +209,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   gradient: LinearGradient(
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
-                    colors: [
-                      Colors.white,
-                      primaryLight.withOpacity(0.3),
-                    ],
+                    colors: [Colors.white, primaryLight.withOpacity(0.3)],
                   ),
                   borderRadius: BorderRadius.circular(24),
                   boxShadow: [
@@ -238,10 +235,7 @@ class _HomeScreenState extends State<HomeScreen> {
                               gradient: LinearGradient(
                                 begin: Alignment.topLeft,
                                 end: Alignment.bottomRight,
-                                colors: [
-                                  primaryColor,
-                                  primaryColorLight,
-                                ],
+                                colors: [primaryColor, primaryColorLight],
                               ),
                               borderRadius: const BorderRadius.only(
                                 topLeft: Radius.circular(24),
@@ -303,7 +297,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       number: 1,
                                       icon: Icons.shopping_bag_rounded,
                                       title: 'Informasi Produk',
-                                      description: 'Isi nama dan kategori produk Anda untuk identifikasi',
+                                      description:
+                                          'Isi nama dan kategori produk Anda untuk identifikasi',
                                       color: primaryColor,
                                     ),
                                     const SizedBox(height: 16),
@@ -311,7 +306,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       number: 2,
                                       icon: FontAwesomeIcons.boxesPacking,
                                       title: 'Bahan Baku',
-                                      description: 'Tambahkan semua bahan yang digunakan beserta detail harga dan jumlah pemakaian',
+                                      description:
+                                          'Tambahkan semua bahan yang digunakan beserta detail harga dan jumlah pemakaian',
                                       color: accentColor,
                                     ),
                                     const SizedBox(height: 16),
@@ -319,7 +315,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       number: 3,
                                       icon: Icons.attach_money,
                                       title: 'Biaya Tenaga Kerja',
-                                      description: 'Atur biaya pembuatan per produk (opsional)',
+                                      description:
+                                          'Atur biaya pembuatan per produk (opsional)',
                                       color: const Color(0xFF9C27B0),
                                     ),
                                     const SizedBox(height: 16),
@@ -327,7 +324,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       number: 4,
                                       icon: Icons.business_center_rounded,
                                       title: 'Biaya Tetap',
-                                      description: 'Alokasikan biaya operasional bulanan ke setiap produk',
+                                      description:
+                                          'Alokasikan biaya operasional bulanan ke setiap produk',
                                       color: successColor,
                                     ),
                                     const SizedBox(height: 16),
@@ -335,7 +333,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                       number: 5,
                                       icon: Icons.calculate_rounded,
                                       title: 'Hitung HPP',
-                                      description: 'Dapatkan HPP dan saran harga jual yang optimal',
+                                      description:
+                                          'Dapatkan HPP dan saran harga jual yang optimal',
                                       color: const Color(0xFFFF9800),
                                     ),
                                     const SizedBox(height: 16),
@@ -349,7 +348,8 @@ class _HomeScreenState extends State<HomeScreen> {
                                         ),
                                       ),
                                       child: Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           Row(
                                             children: [
@@ -396,7 +396,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              
+
               Positioned(
                 top: 16,
                 right: 16,
@@ -450,10 +450,7 @@ class _HomeScreenState extends State<HomeScreen> {
             offset: const Offset(0, 4),
           ),
         ],
-        border: Border.all(
-          color: color.withOpacity(0.1),
-          width: 1,
-        ),
+        border: Border.all(color: color.withOpacity(0.1), width: 1),
       ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -497,11 +494,7 @@ class _HomeScreenState extends State<HomeScreen> {
               children: [
                 Row(
                   children: [
-                    Icon(
-                      icon,
-                      color: color,
-                      size: 20,
-                    ),
+                    Icon(icon, color: color, size: 20),
                     const SizedBox(width: 8),
                     Text(
                       title,
@@ -1110,16 +1103,16 @@ class _HomeScreenState extends State<HomeScreen> {
     if (jumlahBeli <= 0 || totalHarga <= 0 || jumlahPakai <= 0) {
       return 0;
     }
-    
+
     try {
       double biayaPerUnit = totalHarga / jumlahBeli;
       double result = biayaPerUnit * jumlahPakai;
-      
+
       // Pastikan hasilnya valid (bukan NaN atau Infinity)
       if (result.isNaN || result.isInfinite) {
         return 0;
       }
-      
+
       return result;
     } catch (e) {
       return 0;
@@ -1651,8 +1644,11 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Widget _buildHitungButton() {
-    bool hasData = listBahan.isNotEmpty || listBiayaTetap.isNotEmpty || showBiayaTenagaKerja;
-    
+    bool hasData =
+        listBahan.isNotEmpty ||
+        listBiayaTetap.isNotEmpty ||
+        showBiayaTenagaKerja;
+
     return Container(
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(20),
@@ -1686,24 +1682,17 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
               borderRadius: BorderRadius.circular(20),
             ),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Icon(
-                  Icons.calculate_rounded,
+            child: Center(
+              child: Text(
+                hasData
+                    ? 'Hitung HPP & Saran Harga'
+                    : 'Tambahkan Data Terlebih Dahulu',
+                style: const TextStyle(
                   color: Colors.white,
-                  size: 24,
+                  fontSize: 18,
+                  fontWeight: FontWeight.w700,
                 ),
-                const SizedBox(width: 12),
-                Text(
-                  hasData ? 'Hitung HPP & Saran Harga' : 'Tambahkan Data Terlebih Dahulu',
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ],
+              ),
             ),
           ),
         ),
@@ -1748,13 +1737,13 @@ class _HomeScreenState extends State<HomeScreen> {
     if (target <= 0 || totalBiaya <= 0) {
       return 0;
     }
-    
+
     try {
       double result = totalBiaya / target;
       if (result.isNaN || result.isInfinite) {
         return 0;
       }
-      
+
       return result;
     } catch (e) {
       return 0;
@@ -1765,7 +1754,7 @@ class _HomeScreenState extends State<HomeScreen> {
     if (value.isNaN || value.isInfinite) {
       return '0';
     }
-    
+
     return value
         .toStringAsFixed(0)
         .replaceAllMapped(
@@ -1776,37 +1765,31 @@ class _HomeScreenState extends State<HomeScreen> {
 
   void _hitungHPP() {
     if (_formKey.currentState!.validate()) {
-      double totalBiayaBahan = listBahan.fold(
-        0,
-        (sum, bahan) {
-          double biaya = bahan.biayaProduk;
-          if (biaya.isNaN || biaya.isInfinite) {
-            return sum;
-          }
-          return sum + biaya;
-        },
-      );
+      double totalBiayaBahan = listBahan.fold(0, (sum, bahan) {
+        double biaya = bahan.biayaProduk;
+        if (biaya.isNaN || biaya.isInfinite) {
+          return sum;
+        }
+        return sum + biaya;
+      });
 
-      double totalAlokasiBiayaTetap = listBiayaTetap.fold(
-        0,
-        (sum, biaya) {
-          double alokasi = biaya.alokasiPerProduk;
-          if (alokasi.isNaN || alokasi.isInfinite) {
-            return sum;
-          }
-          return sum + alokasi;
-        },
-      );
+      double totalAlokasiBiayaTetap = listBiayaTetap.fold(0, (sum, biaya) {
+        double alokasi = biaya.alokasiPerProduk;
+        if (alokasi.isNaN || alokasi.isInfinite) {
+          return sum;
+        }
+        return sum + alokasi;
+      });
 
       double totalBiayaTenagaKerja = biayaTenagaKerja?.biayaPerProduk ?? 0;
-      
+
       if (totalBiayaTenagaKerja.isNaN || totalBiayaTenagaKerja.isInfinite) {
         totalBiayaTenagaKerja = 0;
       }
 
       double hpp =
           totalBiayaBahan + totalAlokasiBiayaTetap + totalBiayaTenagaKerja;
-      
+
       if (hpp.isNaN || hpp.isInfinite) {
         hpp = 0;
       }
@@ -1844,8 +1827,18 @@ class _HelpDialogPainter extends CustomPainter {
 
     final path = Path()
       ..moveTo(0, size.height * 0.3)
-      ..quadraticBezierTo(size.width * 0.3, size.height * 0.2, size.width * 0.6, size.height * 0.25)
-      ..quadraticBezierTo(size.width * 0.8, size.height * 0.3, size.width, size.height * 0.25)
+      ..quadraticBezierTo(
+        size.width * 0.3,
+        size.height * 0.2,
+        size.width * 0.6,
+        size.height * 0.25,
+      )
+      ..quadraticBezierTo(
+        size.width * 0.8,
+        size.height * 0.3,
+        size.width,
+        size.height * 0.25,
+      )
       ..lineTo(size.width, size.height)
       ..lineTo(0, size.height)
       ..close();

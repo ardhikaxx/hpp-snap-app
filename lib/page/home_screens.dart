@@ -175,7 +175,7 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
             child: IconButton(
               icon: Icon(
-                Icons.help_outline_rounded,
+                FontAwesomeIcons.circleInfo,
                 color: Colors.white,
                 size: 22,
               ),
@@ -262,7 +262,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     ),
                                   ),
                                   child: Icon(
-                                    Icons.help_center_rounded,
+                                    FontAwesomeIcons.book,
                                     color: Colors.white,
                                     size: 30,
                                   ),
@@ -317,7 +317,7 @@ class _HomeScreenState extends State<HomeScreen> {
                                     const SizedBox(height: 16),
                                     _buildEnhancedHelpStep(
                                       number: 3,
-                                      icon: Icons.engineering_rounded,
+                                      icon: Icons.attach_money,
                                       title: 'Biaya Tenaga Kerja',
                                       description: 'Atur biaya pembuatan per produk (opsional)',
                                       color: const Color(0xFF9C27B0),

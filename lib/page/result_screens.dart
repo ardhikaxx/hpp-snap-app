@@ -41,8 +41,7 @@ class ResultScreen extends StatelessWidget {
     if (hpp.isNaN || hpp.isInfinite || hpp < 0) {
       validHpp = 0;
     }
-
-    // PERBAIKAN: Pastikan perhitungan saran harga aman
+    
     double saranHargaJual = _calculateSafePrice(validHpp, 1.3);
     double saranHargaJual2 = _calculateSafePrice(validHpp, 1.5);
     double saranHargaJual3 = _calculateSafePrice(validHpp, 2.0);

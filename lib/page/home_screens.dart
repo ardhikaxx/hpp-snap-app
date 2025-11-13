@@ -91,109 +91,192 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: _buildCustomAppBar(),
       backgroundColor: backgroundPrimary,
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              _buildInfoProduk(),
-              const SizedBox(height: 20),
-              _buildBahanSection(),
-              const SizedBox(height: 20),
-              _buildBiayaTenagaKerjaSection(),
-              const SizedBox(height: 20),
-              _buildBiayaTetapSection(),
-              const SizedBox(height: 30),
-              _buildHitungButton(),
+      body: CustomScrollView(
+        slivers: [
+          SliverAppBar(
+            expandedHeight: 200,
+            collapsedHeight: 80,
+            pinned: true,
+            floating: false,
+            backgroundColor: primaryColor,
+            foregroundColor: Colors.white,
+            elevation: 8,
+            shape: const ContinuousRectangleBorder(
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(40),
+                bottomRight: Radius.circular(40),
+              ),
+            ),
+            leading: Padding(
+              padding: const EdgeInsets.only(left: 12, top: 6, bottom: 6),
+              child: InkWell(
+                onTap: () {},
+                borderRadius: BorderRadius.circular(12),
+                child: Container(
+                  decoration: BoxDecoration(
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Center(
+                    child: FaIcon(
+                      FontAwesomeIcons.bars,
+                      color: primaryColor,
+                      fontWeight: FontWeight.bold,
+                      size: 20,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            title: const Text(
+              'HPP SNAP',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 26,
+                fontWeight: FontWeight.w800,
+                fontFamily: 'SuperTrend',
+                letterSpacing: 1.2,
+              ),
+            ),
+            centerTitle: true,
+            actions: [
+              Padding(
+                padding: const EdgeInsets.only(right: 12),
+                child: InkWell(
+                  onTap: () {
+                    _showHelpDialog(context);
+                  },
+                  borderRadius: BorderRadius.circular(12),
+                  child: Container(
+                    decoration: BoxDecoration(
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(8.0),
+                      child: FaIcon(
+                        FontAwesomeIcons.circleInfo,
+                        color: Colors.white,
+                        size: 20,
+                      ),
+                    ),
+                  ),
+                ),
+              ),
             ],
+            flexibleSpace: FlexibleSpaceBar(
+              background: Container(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                    colors: [primaryColor, primaryColorLight],
+                  ),
+                ),
+                child: Stack(
+                  children: [
+                    Positioned(
+                      top: -50,
+                      right: -30,
+                      child: Container(
+                        width: 150,
+                        height: 150,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                    Positioned(
+                      bottom: -20,
+                      left: -20,
+                      child: Container(
+                        width: 100,
+                        height: 100,
+                        decoration: BoxDecoration(
+                          color: Colors.white.withOpacity(0.1),
+                          shape: BoxShape.circle,
+                        ),
+                      ),
+                    ),
+                    Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const SizedBox(height: 60),
+                          Container(
+                            width: 80,
+                            height: 80,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(60),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(60),
+                              child: Image.asset(
+                                'assets/icons/icon.png',
+                                fit: BoxFit.cover,
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Container(
+                                    color: Colors.white,
+                                    child: const Icon(
+                                      Icons.shopping_bag_rounded,
+                                      color: Color(0xFF0F6CCB),
+                                      size: 50,
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ),
+                          Text(
+                            'Hitung Harga Pokok Produksi',
+                            style: TextStyle(
+                              color: Colors.white.withOpacity(0.9),
+                              fontSize: 16,
+                              fontWeight: FontWeight.w400,
+                              letterSpacing: 0.5,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
           ),
-        ),
-      ),
-    );
-  }
 
-  PreferredSizeWidget _buildCustomAppBar() {
-    return AppBar(
-      toolbarHeight: 100,
-      backgroundColor: Colors.transparent,
-      elevation: 0,
-      flexibleSpace: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [gradientStart, gradientEnd],
-          ),
-          borderRadius: const BorderRadius.vertical(
-            bottom: Radius.circular(25),
-          ),
-          boxShadow: [
-            BoxShadow(
-              color: primaryColor.withOpacity(0.3),
-              blurRadius: 15,
-              offset: const Offset(0, 4),
-            ),
-          ],
-        ),
-      ),
-      title: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Text(
-            'HPP SNAP',
-            style: TextStyle(
-              color: Colors.white,
-              fontSize: 26,
-              fontWeight: FontWeight.w800,
-              fontFamily: 'SuperTrend',
-              letterSpacing: 1.2,
-            ),
-          ),
-          Text(
-            'Hitung Harga Pokok Produksi',
-            style: TextStyle(
-              color: Colors.white.withOpacity(0.9),
-              fontSize: 14,
-              fontWeight: FontWeight.w400,
-              letterSpacing: 0.5,
-            ),
+          SliverList(
+            delegate: SliverChildListDelegate([
+              Padding(
+                padding: const EdgeInsets.all(16.0),
+                child: Form(
+                  key: _formKey,
+                  child: Column(
+                    children: [
+                      _buildInfoProduk(),
+                      const SizedBox(height: 20),
+                      _buildBahanSection(),
+                      const SizedBox(height: 20),
+                      _buildBiayaTenagaKerjaSection(),
+                      const SizedBox(height: 20),
+                      _buildBiayaTetapSection(),
+                      const SizedBox(height: 30),
+                      _buildHitungButton(),
+                      const SizedBox(height: 30),
+                    ],
+                  ),
+                ),
+              ),
+            ]),
           ),
         ],
       ),
-      actions: [
-        Padding(
-          padding: const EdgeInsets.only(right: 16.0),
-          child: Container(
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12),
-              border: Border.all(color: Colors.white.withOpacity(0.2)),
-            ),
-            child: IconButton(
-              icon: Icon(
-                FontAwesomeIcons.circleInfo,
-                color: Colors.white,
-                size: 22,
-              ),
-              onPressed: () {
-                _showHelpDialog();
-              },
-              tooltip: 'Bantuan',
-            ),
-          ),
-        ),
-      ],
-      shape: const RoundedRectangleBorder(
-        borderRadius: BorderRadius.vertical(bottom: Radius.circular(25)),
-      ),
     );
   }
 
-  void _showHelpDialog() {
+  void _showHelpDialog(BuildContext context) {
     showDialog(
       context: context,
       barrierColor: Colors.black54,

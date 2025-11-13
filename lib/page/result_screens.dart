@@ -98,6 +98,10 @@ class ResultScreen extends StatelessWidget {
                     end: Alignment.bottomRight,
                     colors: [primaryColor, primaryColorLight],
                   ),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(40),
+                    bottomRight: Radius.circular(40),
+                  ),
                 ),
                 child: Stack(
                   children: [

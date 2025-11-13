@@ -108,27 +108,6 @@ class _HomeScreenState extends State<HomeScreen> {
                 bottomRight: Radius.circular(40),
               ),
             ),
-            leading: Padding(
-              padding: const EdgeInsets.only(left: 12, top: 6, bottom: 6),
-              child: InkWell(
-                onTap: () {},
-                borderRadius: BorderRadius.circular(12),
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(16),
-                  ),
-                  child: Center(
-                    child: FaIcon(
-                      FontAwesomeIcons.bars,
-                      color: primaryColor,
-                      fontWeight: FontWeight.bold,
-                      size: 20,
-                    ),
-                  ),
-                ),
-              ),
-            ),
             title: const Text(
               'HPP SNAP',
               style: TextStyle(
@@ -149,15 +128,16 @@ class _HomeScreenState extends State<HomeScreen> {
                   },
                   borderRadius: BorderRadius.circular(12),
                   child: Container(
+                    width: 45,
+                    height: 45,
                     decoration: BoxDecoration(
-                      color: Colors.white.withOpacity(0.15),
+                      color: Colors.white,
                       borderRadius: BorderRadius.circular(12),
                     ),
-                    child: Padding(
-                      padding: const EdgeInsets.all(8.0),
+                    child: Center(
                       child: FaIcon(
                         FontAwesomeIcons.circleInfo,
-                        color: Colors.white,
+                        color: primaryColor,
                         size: 20,
                       ),
                     ),
@@ -172,6 +152,10 @@ class _HomeScreenState extends State<HomeScreen> {
                     begin: Alignment.topLeft,
                     end: Alignment.bottomRight,
                     colors: [primaryColor, primaryColorLight],
+                  ),
+                  borderRadius: BorderRadius.only(
+                    bottomLeft: Radius.circular(40),
+                    bottomRight: Radius.circular(40),
                   ),
                 ),
                 child: Stack(

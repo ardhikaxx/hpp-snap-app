@@ -246,7 +246,7 @@ class ResultScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  Icons.price_change_rounded,
+                  FontAwesomeIcons.moneyBillTransfer,
                   color: Colors.white.withOpacity(0.9),
                   size: 20,
                 ),
@@ -350,13 +350,13 @@ class ResultScreen extends StatelessWidget {
               _buildEnhancedInfoRow(
                 'Nama Produk',
                 namaProduk.isEmpty ? '-' : namaProduk,
-                Icons.label_rounded,
+                FontAwesomeIcons.tag,
               ),
               const SizedBox(height: 12),
               _buildEnhancedInfoRow(
                 'Kategori',
                 kategori.isEmpty ? '-' : kategori,
-                Icons.category_rounded,
+                FontAwesomeIcons.layerGroup,
               ),
             ],
           ),
@@ -430,7 +430,7 @@ class ResultScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
-                      Icons.pie_chart_rounded,
+                      FontAwesomeIcons.wallet,
                       color: primaryColor,
                       size: 24,
                     ),
@@ -495,7 +495,7 @@ class ResultScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           child: const Icon(
-                            Icons.calculate_rounded,
+                            FontAwesomeIcons.sackDollar,
                             color: Colors.white,
                             size: 20,
                           ),
@@ -624,7 +624,7 @@ class ResultScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
-                      Icons.list_alt_rounded,
+                      FontAwesomeIcons.fileInvoiceDollar,
                       color: primaryColor,
                       size: 24,
                     ),
@@ -1120,10 +1120,10 @@ class ResultScreen extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.save_rounded, color: Colors.white),
+                      Icon(FontAwesomeIcons.fileInvoice, color: Colors.white),
                       const SizedBox(width: 8),
                       const Text(
-                        'Simpan',
+                        'Export',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,

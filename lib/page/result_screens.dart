@@ -1,12 +1,8 @@
-import 'dart:convert';
-import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:file_saver/file_saver.dart';
 import 'package:printing/printing.dart';
 import 'package:pdf/pdf.dart';
 import 'package:pdf/widgets.dart' as pw;
-import 'package:excel/excel.dart' hide Border;
 import 'home_screens.dart';
 
 class ResultScreen extends StatelessWidget {
@@ -1180,7 +1176,7 @@ class ResultScreen extends StatelessWidget {
                   shape: BoxShape.circle,
                 ),
                 child: Icon(
-                  FontAwesomeIcons.fileExport,
+                  FontAwesomeIcons.fileInvoice,
                   color: primaryColor,
                   size: 32,
                 ),
@@ -1215,54 +1211,6 @@ class ResultScreen extends StatelessWidget {
                   icon: const Icon(FontAwesomeIcons.filePdf, size: 20),
                   label: const Text(
                     'Export PDF',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _exportToExcel(scaffoldContext);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF217346),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  icon: const Icon(FontAwesomeIcons.fileExcel, size: 20),
-                  label: const Text(
-                    'Export Excel',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 12),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _exportToCsv(
-                      scaffoldContext,
-                    );
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF1976D2),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  icon: const Icon(FontAwesomeIcons.fileCsv, size: 20),
-                  label: const Text(
-                    'Export CSV',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                 ),
@@ -1330,229 +1278,6 @@ class ResultScreen extends StatelessWidget {
       _showSuccessSnackbar(context, 'PDF berhasil diexport!');
     } catch (e) {
       _showErrorSnackbar(context, 'Gagal export PDF: ${e.toString()}');
-    }
-  }
-
-  Future<void> _exportToExcel(BuildContext context) async {
-    try {
-      var excel = Excel.createExcel();
-      var sheet = excel['Laporan HPP'];
-      sheet.cell(CellIndex.indexByString("A1")).value = TextCellValue(
-        "LAPORAN HPP - HPP SNAP",
-      );
-      sheet.cell(CellIndex.indexByString("A3")).value = TextCellValue(
-        "INFORMASI PRODUK",
-      );
-
-      sheet.cell(CellIndex.indexByString("A4")).value = TextCellValue(
-        "Nama Produk",
-      );
-      sheet.cell(CellIndex.indexByString("B4")).value = TextCellValue(
-        namaProduk.isEmpty ? "-" : namaProduk,
-      );
-      sheet.cell(CellIndex.indexByString("A5")).value = TextCellValue(
-        "Kategori",
-      );
-      sheet.cell(CellIndex.indexByString("B5")).value = TextCellValue(
-        kategori.isEmpty ? "-" : kategori,
-      );
-      int currentRow = 7;
-      sheet.cell(CellIndex.indexByString("A$currentRow")).value = TextCellValue(
-        "RINGKASAN BIAYA",
-      );
-      currentRow++;
-      sheet.cell(CellIndex.indexByString("A$currentRow")).value = TextCellValue(
-        "Biaya Bahan Baku",
-      );
-      sheet.cell(CellIndex.indexByString("B$currentRow")).value = TextCellValue(
-        totalBiayaBahan as String,
-      );
-
-      currentRow++;
-      if (totalBiayaTenagaKerja > 0) {
-        sheet.cell(CellIndex.indexByString("A$currentRow")).value =
-            TextCellValue("Biaya Tenaga Kerja");
-        sheet.cell(CellIndex.indexByString("B$currentRow")).value =
-            TextCellValue(totalBiayaTenagaKerja as String);
-        currentRow++;
-      }
-
-      sheet.cell(CellIndex.indexByString("A$currentRow")).value = TextCellValue(
-        "Alokasi Biaya Tetap",
-      );
-      sheet.cell(CellIndex.indexByString("B$currentRow")).value = TextCellValue(
-        totalAlokasiBiayaTetap as String,
-      );
-
-      currentRow++;
-      sheet.cell(CellIndex.indexByString("A$currentRow")).value = TextCellValue(
-        "TOTAL HPP",
-      );
-      sheet.cell(CellIndex.indexByString("B$currentRow")).value = TextCellValue(
-        hpp as String,
-      );
-
-      if (listBahan.isNotEmpty) {
-        currentRow += 2;
-        sheet.cell(CellIndex.indexByString("A$currentRow")).value =
-            TextCellValue("DETAIL BAHAN BAKU");
-
-        currentRow++;
-        sheet.cell(CellIndex.indexByString("A$currentRow")).value =
-            TextCellValue("Nama Bahan");
-        sheet.cell(CellIndex.indexByString("B$currentRow")).value =
-            TextCellValue("Jumlah Pakai");
-        sheet.cell(CellIndex.indexByString("C$currentRow")).value =
-            TextCellValue("Satuan");
-        sheet.cell(CellIndex.indexByString("D$currentRow")).value =
-            TextCellValue("Biaya/Produk");
-
-        for (var bahan in listBahan) {
-          currentRow++;
-          sheet.cell(CellIndex.indexByString("A$currentRow")).value =
-              TextCellValue(bahan.nama.isEmpty ? "Bahan" : bahan.nama);
-          sheet.cell(CellIndex.indexByString("B$currentRow")).value =
-              TextCellValue(bahan.jumlahPakai as String);
-          sheet.cell(CellIndex.indexByString("C$currentRow")).value =
-              TextCellValue(bahan.satuan);
-          sheet.cell(CellIndex.indexByString("D$currentRow")).value =
-              TextCellValue(bahan.biayaProduk as String);
-        }
-      }
-
-      currentRow += 2;
-      sheet.cell(CellIndex.indexByString("A$currentRow")).value = TextCellValue(
-        "SARAN HARGA JUAL",
-      );
-
-      currentRow++;
-      sheet.cell(CellIndex.indexByString("A$currentRow")).value = TextCellValue(
-        "Strategi",
-      );
-      sheet.cell(CellIndex.indexByString("B$currentRow")).value = TextCellValue(
-        "Markup",
-      );
-      sheet.cell(CellIndex.indexByString("C$currentRow")).value = TextCellValue(
-        "Harga Jual",
-      );
-      sheet.cell(CellIndex.indexByString("D$currentRow")).value = TextCellValue(
-        "Keuntungan",
-      );
-      sheet.cell(CellIndex.indexByString("E$currentRow")).value = TextCellValue(
-        "Margin",
-      );
-
-      double saran1 = _calculateSafePrice(hpp, 1.3);
-      double saran2 = _calculateSafePrice(hpp, 1.5);
-      double saran3 = _calculateSafePrice(hpp, 2.0);
-
-      List<Map<String, dynamic>> saranList = [
-        {"strategi": "Konservatif", "markup": "30%", "harga": saran1},
-        {"strategi": "Standar", "markup": "50%", "harga": saran2},
-        {"strategi": "Agresif", "markup": "100%", "harga": saran3},
-      ];
-
-      for (var saran in saranList) {
-        currentRow++;
-        double harga = saran["harga"];
-        double keuntungan = harga - hpp;
-        double margin = keuntungan / harga * 100;
-
-        sheet.cell(CellIndex.indexByString("A$currentRow")).value =
-            TextCellValue(saran["strategi"]);
-        sheet.cell(CellIndex.indexByString("B$currentRow")).value =
-            TextCellValue(saran["markup"]);
-        sheet.cell(CellIndex.indexByString("C$currentRow")).value =
-            TextCellValue(harga as String);
-        sheet.cell(CellIndex.indexByString("D$currentRow")).value =
-            TextCellValue(keuntungan as String);
-        sheet.cell(CellIndex.indexByString("E$currentRow")).value =
-            TextCellValue("${margin.toStringAsFixed(1)}%");
-      }
-
-      var fileBytes = excel.save();
-      if (fileBytes != null) {
-        await FileSaver.instance.saveFile(
-          bytes: Uint8List.fromList(fileBytes),
-          name:
-              'Laporan_HPP_${namaProduk.isEmpty ? 'Produk' : namaProduk.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}_${DateTime.now().millisecondsSinceEpoch}.xlsx',
-          mimeType: MimeType.microsoftExcel,
-        );
-        _showSuccessSnackbar(context, 'Excel berhasil diexport!');
-      }
-    } catch (e) {
-      _showErrorSnackbar(context, 'Gagal export Excel: ${e.toString()}');
-    }
-  }
-
-  Future<void> _exportToCsv(BuildContext context) async {
-    try {
-      StringBuffer csv = StringBuffer();
-      csv.writeln("LAPORAN HPP - HPP SNAP");
-      csv.writeln("Tanggal: ${DateTime.now().toString()}");
-      csv.writeln();
-      csv.writeln("INFORMASI PRODUK");
-      csv.writeln("Nama Produk,${namaProduk.isEmpty ? "-" : namaProduk}");
-      csv.writeln("Kategori,${kategori.isEmpty ? "-" : kategori}");
-      csv.writeln();
-      csv.writeln("RINGKASAN BIAYA");
-      csv.writeln("Kategori,Jumlah");
-      csv.writeln("Biaya Bahan Baku,${totalBiayaBahan.toStringAsFixed(2)}");
-      if (totalBiayaTenagaKerja > 0) {
-        csv.writeln(
-          "Biaya Tenaga Kerja,${totalBiayaTenagaKerja.toStringAsFixed(2)}",
-        );
-      }
-      csv.writeln(
-        "Alokasi Biaya Tetap,${totalAlokasiBiayaTetap.toStringAsFixed(2)}",
-      );
-      csv.writeln("TOTAL HPP,${hpp.toStringAsFixed(2)}");
-      csv.writeln();
-
-      if (listBahan.isNotEmpty) {
-        csv.writeln("DETAIL BAHAN BAKU");
-        csv.writeln("Nama Bahan,Jumlah Pakai,Satuan,Biaya per Produk");
-        for (var bahan in listBahan) {
-          csv.writeln(
-            "${bahan.nama.isEmpty ? "Bahan" : bahan.nama},${bahan.jumlahPakai},${bahan.satuan},${bahan.biayaProduk.toStringAsFixed(2)}",
-          );
-        }
-        csv.writeln();
-      }
-      csv.writeln("SARAN HARGA JUAL");
-      csv.writeln("Strategi,Markup,Harga Jual,Keuntungan,Margin");
-
-      double saran1 = _calculateSafePrice(hpp, 1.3);
-      double saran2 = _calculateSafePrice(hpp, 1.5);
-      double saran3 = _calculateSafePrice(hpp, 2.0);
-
-      List<Map<String, dynamic>> saranList = [
-        {"strategi": "Konservatif", "markup": "30%", "harga": saran1},
-        {"strategi": "Standar", "markup": "50%", "harga": saran2},
-        {"strategi": "Agresif", "markup": "100%", "harga": saran3},
-      ];
-
-      for (var saran in saranList) {
-        double harga = saran["harga"];
-        double keuntungan = harga - hpp;
-        double margin = keuntungan / harga * 100;
-
-        csv.writeln(
-          "${saran["strategi"]},${saran["markup"]},${harga.toStringAsFixed(2)},${keuntungan.toStringAsFixed(2)},${margin.toStringAsFixed(1)}%",
-        );
-      }
-
-      final bytes = utf8.encode(csv.toString());
-      await FileSaver.instance.saveFile(
-        bytes: bytes,
-        name:
-            'Laporan_HPP_${namaProduk.isEmpty ? 'Produk' : namaProduk.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}_${DateTime.now().millisecondsSinceEpoch}.csv',
-        mimeType: MimeType.csv,
-      );
-
-      _showSuccessSnackbar(context, 'CSV berhasil diexport!');
-    } catch (e) {
-      _showErrorSnackbar(context, 'Gagal export CSV: ${e.toString()}');
     }
   }
 

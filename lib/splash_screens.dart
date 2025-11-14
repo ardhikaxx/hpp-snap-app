@@ -23,7 +23,7 @@ class _SplashScreenState extends State<SplashScreen>
     super.initState();
 
     _controller = AnimationController(
-      duration: const Duration(milliseconds: 2000),
+      duration: const Duration(milliseconds: 2500),
       vsync: this,
     );
 
@@ -49,13 +49,12 @@ class _SplashScreenState extends State<SplashScreen>
     );
 
     _slideUpAnimation =
-        Tween<Offset>(begin: const Offset(0.0, -1.0), end: Offset.zero).animate(
+        Tween<Offset>(begin: const Offset(0.0, 0.5), end: Offset.zero).animate(
           CurvedAnimation(
             parent: _controller,
             curve: const Interval(0.1, 0.7, curve: Curves.easeOutBack),
           ),
         );
-
 
     _illustrationSlideUpAnimation =
         Tween<Offset>(
@@ -102,6 +101,7 @@ class _SplashScreenState extends State<SplashScreen>
     return Scaffold(
       body: Stack(
         children: [
+          // Background Gradient
           AnimatedBuilder(
             animation: _fadeAnimation,
             builder: (context, child) {
@@ -122,6 +122,7 @@ class _SplashScreenState extends State<SplashScreen>
             },
           ),
 
+          // Illustration
           Positioned(
             bottom: size.height * 0.36,
             left: 0,
@@ -144,6 +145,83 @@ class _SplashScreenState extends State<SplashScreen>
                 'assets/ilustrasi/ilustrations.png',
                 height: 180,
                 fit: BoxFit.contain,
+              ),
+            ),
+          ),
+
+          Positioned(
+            top: size.height * 0.12,
+            left: 0,
+            right: 0,
+            child: AnimatedBuilder(
+              animation: _controller,
+              builder: (context, child) {
+                final bounceValue = _bounceAnimation.value;
+                final scaleValue = _scaleAnimation.value;
+                final slideValue = _slideUpAnimation.value;
+
+                return Transform.translate(
+                  offset: Offset(slideValue.dx * 100, slideValue.dy * 100),
+                  child: Transform.scale(
+                    scale: scaleValue * (1 + bounceValue * 0.1),
+                    child: Opacity(
+                      opacity: _fadeAnimation.value,
+                      child: child,
+                    ),
+                  ),
+                );
+              },
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(60),
+                    ),
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(60),
+                      child: Image.asset(
+                        'assets/icons/icon.png',
+                        fit: BoxFit.cover,
+                        errorBuilder: (context, error, stackTrace) {
+                          return Container(
+                            color: Colors.white,
+                            child: const Icon(
+                              Icons.image,
+                              color: Color(0xFF0F6CCB),
+                              size: 50,
+                            ),
+                          );
+                        },
+                      ),
+                    ),
+                  ),
+                  _BounceText(
+                    text: 'HPP Snap App',
+                    animation: _controller,
+                    delay: 0.3,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 32,
+                      fontFamily: 'SuperTrend',
+                      fontWeight: FontWeight.bold,
+                      letterSpacing: 1.2,
+                    ),
+                  ),
+                  _BounceText(
+                    text: 'Hitung Harga Pokok Penjualan\nProdukmu Sekarang!',
+                    animation: _controller,
+                    delay: 0.5,
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 16,
+                      height: 1.4,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ],
               ),
             ),
           ),
@@ -233,98 +311,23 @@ class _SplashScreenState extends State<SplashScreen>
               ),
             ),
           ),
-
-          Positioned(
-            top: size.height * 0.12,
-            left: 0,
-            right: 0,
-            child: AnimatedBuilder(
-              animation: _controller,
-              builder: (context, child) {
-                final bounceValue = _bounceAnimation.value;
-                final scaleValue = _scaleAnimation.value;
-                final slideValue = _slideUpAnimation.value;
-
-                return Transform.translate(
-                  offset: Offset(slideValue.dx, slideValue.dy * 100),
-                  child: Transform.scale(
-                    scale: scaleValue * (1 + bounceValue * 0.1),
-                    child: Opacity(opacity: _fadeAnimation.value, child: child),
-                  ),
-                );
-              },
-              child: Column(
-                children: [
-                  Container(
-                    width: 120,
-                    height: 120,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(60),
-                    ),
-                    child: ClipRRect(
-                      borderRadius: BorderRadius.circular(60),
-                      child: Image.asset(
-                        'assets/icons/icon.png',
-                        fit: BoxFit.cover,
-                        errorBuilder: (context, error, stackTrace) {
-                          return Container(
-                            color: Colors.white,
-                            child: const Icon(
-                              Icons.image,
-                              color: Color(0xFF0F6CCB),
-                              size: 50,
-                            ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                  _AnimatedText(
-                    text: 'HPP Snap App',
-                    animation: CurvedAnimation(
-                      parent: _controller,
-                      curve: const Interval(0.2, 0.6, curve: Curves.easeOut),
-                    ),
-                    style: const TextStyle(
-                      color: Colors.white,
-                      letterSpacing: 1.5,
-                      fontSize: 42,
-                      fontWeight: FontWeight.bold,
-                      fontFamily: 'SuperTrend',
-                    ),
-                  ),
-                  _AnimatedText(
-                    text: 'Hitung Harga Pokok Penjualan\nProdukmu Sekarang!',
-                    animation: CurvedAnimation(
-                      parent: _controller,
-                      curve: const Interval(0.4, 0.8, curve: Curves.easeOut),
-                    ),
-                    style: const TextStyle(
-                      color: Color(0xD7FFFFFF),
-                      fontSize: 16,
-                      height: 1.4,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
         ],
       ),
     );
   }
 }
 
-class _AnimatedText extends StatelessWidget {
+class _BounceText extends StatelessWidget {
   final String text;
   final Animation<double> animation;
   final TextStyle style;
+  final double delay;
 
-  const _AnimatedText({
+  const _BounceText({
     required this.text,
     required this.animation,
     required this.style,
+    required this.delay,
   });
 
   @override
@@ -332,13 +335,29 @@ class _AnimatedText extends StatelessWidget {
     return AnimatedBuilder(
       animation: animation,
       builder: (context, child) {
-        final value = animation.value;
-        final endIndex = (text.length * value).round();
-        final displayedText = text.substring(0, endIndex.clamp(0, text.length));
+        final end = (delay + 0.4).clamp(0.0, 1.0);
+        final value = CurvedAnimation(
+          parent: animation,
+          curve: Interval(delay, end, curve: Curves.bounceOut),
+        ).value;
+
+        final opacity = value.clamp(0.0, 1.0);
+        final scale = 0.7 + value * 0.3;
+        final offset = (1 - value) * 30;
 
         return Opacity(
-          opacity: value,
-          child: Text(displayedText, textAlign: TextAlign.center, style: style),
+          opacity: opacity,
+          child: Transform.translate(
+            offset: Offset(0, offset),
+            child: Transform.scale(
+              scale: scale,
+              child: Text(
+                text,
+                textAlign: TextAlign.center,
+                style: style,
+              ),
+            ),
+          ),
         );
       },
     );

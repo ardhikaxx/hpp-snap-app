@@ -1,5 +1,12 @@
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:file_saver/file_saver.dart';
+import 'package:printing/printing.dart';
+import 'package:pdf/pdf.dart';
+import 'package:pdf/widgets.dart' as pw;
+import 'package:excel/excel.dart' hide Border;
 import 'home_screens.dart';
 
 class ResultScreen extends StatelessWidget {
@@ -41,7 +48,7 @@ class ResultScreen extends StatelessWidget {
     if (hpp.isNaN || hpp.isInfinite || hpp < 0) {
       validHpp = 0;
     }
-    
+
     double saranHargaJual = _calculateSafePrice(validHpp, 1.3);
     double saranHargaJual2 = _calculateSafePrice(validHpp, 1.5);
     double saranHargaJual3 = _calculateSafePrice(validHpp, 2.0);
@@ -98,7 +105,7 @@ class ResultScreen extends StatelessWidget {
                     end: Alignment.bottomRight,
                     colors: [primaryColor, primaryColorLight],
                   ),
-                  borderRadius: BorderRadius.only(
+                  borderRadius: const BorderRadius.only(
                     bottomLeft: Radius.circular(40),
                     bottomRight: Radius.circular(40),
                   ),
@@ -148,9 +155,9 @@ class ResultScreen extends StatelessWidget {
                                 errorBuilder: (context, error, stackTrace) {
                                   return Container(
                                     color: Colors.white,
-                                    child: const Icon(
+                                    child: Icon(
                                       Icons.image,
-                                      color: Color(0xFF0F6CCB),
+                                      color: primaryColor,
                                       size: 50,
                                     ),
                                   );
@@ -164,7 +171,6 @@ class ResultScreen extends StatelessWidget {
                               color: Colors.white,
                               fontSize: 26,
                               fontWeight: FontWeight.w800,
-                              fontFamily: 'SuperTrend',
                               letterSpacing: 1.2,
                             ),
                           ),
@@ -665,7 +671,7 @@ class ResultScreen extends StatelessWidget {
                   [
                     _buildDetailItemWithSubtitle(
                       'Tenaga Kerja',
-                      biayaTenagaKerja?.keterangan.isNotEmpty ?? false
+                      biayaTenagaKerja?.keterangan.isNotEmpty == true
                           ? biayaTenagaKerja!.keterangan
                           : 'Biaya pembuatan per produk',
                       totalBiayaTenagaKerja,
@@ -1115,7 +1121,7 @@ class ResultScreen extends StatelessWidget {
                 color: Colors.transparent,
                 borderRadius: BorderRadius.circular(16),
                 child: InkWell(
-                  onTap: () => _showSaveDialog(context),
+                  onTap: () => _showExportDialog(context),
                   borderRadius: BorderRadius.circular(16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
@@ -1154,7 +1160,9 @@ class ResultScreen extends StatelessWidget {
         );
   }
 
-  void _showSaveDialog(BuildContext context) {
+  void _showExportDialog(BuildContext context) {
+    final scaffoldContext = context;
+
     showDialog(
       context: context,
       builder: (context) => Dialog(
@@ -1171,35 +1179,106 @@ class ResultScreen extends StatelessWidget {
                   color: primaryColor.withOpacity(0.1),
                   shape: BoxShape.circle,
                 ),
-                child: Icon(Icons.save_rounded, color: primaryColor, size: 32),
+                child: Icon(
+                  FontAwesomeIcons.fileExport,
+                  color: primaryColor,
+                  size: 32,
+                ),
               ),
               const SizedBox(height: 16),
               const Text(
-                'Simpan Perhitungan',
+                'Export Laporan',
                 style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
               ),
               const SizedBox(height: 8),
               Text(
-                'Fitur penyimpanan akan segera tersedia!',
+                'Pilih format export untuk menyimpan laporan HPP',
                 textAlign: TextAlign.center,
                 style: TextStyle(color: Colors.grey[600], fontSize: 14),
               ),
               const SizedBox(height: 20),
               SizedBox(
                 width: double.infinity,
-                child: ElevatedButton(
-                  onPressed: () => Navigator.pop(context),
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _exportToPdf(scaffoldContext);
+                  },
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: primaryColor,
+                    backgroundColor: const Color(0xFFD32F2F),
                     foregroundColor: Colors.white,
                     padding: const EdgeInsets.symmetric(vertical: 16),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(12),
                     ),
                   ),
-                  child: const Text(
-                    'Mengerti',
+                  icon: const Icon(FontAwesomeIcons.filePdf, size: 20),
+                  label: const Text(
+                    'Export PDF',
                     style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _exportToExcel(scaffoldContext);
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF217346),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  icon: const Icon(FontAwesomeIcons.fileExcel, size: 20),
+                  label: const Text(
+                    'Export Excel',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 12),
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: () {
+                    Navigator.pop(context);
+                    _exportToCsv(
+                      scaffoldContext,
+                    );
+                  },
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: const Color(0xFF1976D2),
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
+                  icon: const Icon(FontAwesomeIcons.fileCsv, size: 20),
+                  label: const Text(
+                    'Export CSV',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 16),
+              SizedBox(
+                width: double.infinity,
+                child: TextButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: Text(
+                    'Batal',
+                    style: TextStyle(
+                      color: primaryColor,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 16,
+                    ),
                   ),
                 ),
               ),
@@ -1208,5 +1287,726 @@ class ResultScreen extends StatelessWidget {
         ),
       ),
     );
+  }
+
+  Future<void> _exportToPdf(BuildContext context) async {
+    try {
+      final pdf = pw.Document();
+      pdf.addPage(
+        pw.MultiPage(
+          pageFormat: PdfPageFormat.a4,
+          build: (pw.Context context) {
+            return [
+              _buildPdfHeader(),
+              pw.SizedBox(height: 20),
+              _buildPdfProductInfo(),
+              pw.SizedBox(height: 15),
+              _buildPdfHppSummary(),
+              pw.SizedBox(height: 15),
+              if (listBahan.isNotEmpty) ...[
+                _buildPdfMaterialDetails(),
+                pw.SizedBox(height: 15),
+              ],
+              if (listBiayaTetap.isNotEmpty) ...[
+                _buildPdfFixedCostDetails(),
+                pw.SizedBox(height: 15),
+              ],
+              _buildPdfPriceSuggestions(),
+              pw.SizedBox(height: 15),
+              _buildPdfFooter(),
+            ];
+          },
+        ),
+      );
+
+      final bytes = await pdf.save();
+
+      await Printing.sharePdf(
+        bytes: bytes,
+        filename:
+            'Laporan_HPP_${namaProduk.isEmpty ? 'Produk' : namaProduk.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}_${DateTime.now().millisecondsSinceEpoch}.pdf',
+      );
+
+      _showSuccessSnackbar(context, 'PDF berhasil diexport!');
+    } catch (e) {
+      _showErrorSnackbar(context, 'Gagal export PDF: ${e.toString()}');
+    }
+  }
+
+  Future<void> _exportToExcel(BuildContext context) async {
+    try {
+      var excel = Excel.createExcel();
+      var sheet = excel['Laporan HPP'];
+      sheet.cell(CellIndex.indexByString("A1")).value = TextCellValue(
+        "LAPORAN HPP - HPP SNAP",
+      );
+      sheet.cell(CellIndex.indexByString("A3")).value = TextCellValue(
+        "INFORMASI PRODUK",
+      );
+
+      sheet.cell(CellIndex.indexByString("A4")).value = TextCellValue(
+        "Nama Produk",
+      );
+      sheet.cell(CellIndex.indexByString("B4")).value = TextCellValue(
+        namaProduk.isEmpty ? "-" : namaProduk,
+      );
+      sheet.cell(CellIndex.indexByString("A5")).value = TextCellValue(
+        "Kategori",
+      );
+      sheet.cell(CellIndex.indexByString("B5")).value = TextCellValue(
+        kategori.isEmpty ? "-" : kategori,
+      );
+      int currentRow = 7;
+      sheet.cell(CellIndex.indexByString("A$currentRow")).value = TextCellValue(
+        "RINGKASAN BIAYA",
+      );
+      currentRow++;
+      sheet.cell(CellIndex.indexByString("A$currentRow")).value = TextCellValue(
+        "Biaya Bahan Baku",
+      );
+      sheet.cell(CellIndex.indexByString("B$currentRow")).value = TextCellValue(
+        totalBiayaBahan as String,
+      );
+
+      currentRow++;
+      if (totalBiayaTenagaKerja > 0) {
+        sheet.cell(CellIndex.indexByString("A$currentRow")).value =
+            TextCellValue("Biaya Tenaga Kerja");
+        sheet.cell(CellIndex.indexByString("B$currentRow")).value =
+            TextCellValue(totalBiayaTenagaKerja as String);
+        currentRow++;
+      }
+
+      sheet.cell(CellIndex.indexByString("A$currentRow")).value = TextCellValue(
+        "Alokasi Biaya Tetap",
+      );
+      sheet.cell(CellIndex.indexByString("B$currentRow")).value = TextCellValue(
+        totalAlokasiBiayaTetap as String,
+      );
+
+      currentRow++;
+      sheet.cell(CellIndex.indexByString("A$currentRow")).value = TextCellValue(
+        "TOTAL HPP",
+      );
+      sheet.cell(CellIndex.indexByString("B$currentRow")).value = TextCellValue(
+        hpp as String,
+      );
+
+      if (listBahan.isNotEmpty) {
+        currentRow += 2;
+        sheet.cell(CellIndex.indexByString("A$currentRow")).value =
+            TextCellValue("DETAIL BAHAN BAKU");
+
+        currentRow++;
+        sheet.cell(CellIndex.indexByString("A$currentRow")).value =
+            TextCellValue("Nama Bahan");
+        sheet.cell(CellIndex.indexByString("B$currentRow")).value =
+            TextCellValue("Jumlah Pakai");
+        sheet.cell(CellIndex.indexByString("C$currentRow")).value =
+            TextCellValue("Satuan");
+        sheet.cell(CellIndex.indexByString("D$currentRow")).value =
+            TextCellValue("Biaya/Produk");
+
+        for (var bahan in listBahan) {
+          currentRow++;
+          sheet.cell(CellIndex.indexByString("A$currentRow")).value =
+              TextCellValue(bahan.nama.isEmpty ? "Bahan" : bahan.nama);
+          sheet.cell(CellIndex.indexByString("B$currentRow")).value =
+              TextCellValue(bahan.jumlahPakai as String);
+          sheet.cell(CellIndex.indexByString("C$currentRow")).value =
+              TextCellValue(bahan.satuan);
+          sheet.cell(CellIndex.indexByString("D$currentRow")).value =
+              TextCellValue(bahan.biayaProduk as String);
+        }
+      }
+
+      currentRow += 2;
+      sheet.cell(CellIndex.indexByString("A$currentRow")).value = TextCellValue(
+        "SARAN HARGA JUAL",
+      );
+
+      currentRow++;
+      sheet.cell(CellIndex.indexByString("A$currentRow")).value = TextCellValue(
+        "Strategi",
+      );
+      sheet.cell(CellIndex.indexByString("B$currentRow")).value = TextCellValue(
+        "Markup",
+      );
+      sheet.cell(CellIndex.indexByString("C$currentRow")).value = TextCellValue(
+        "Harga Jual",
+      );
+      sheet.cell(CellIndex.indexByString("D$currentRow")).value = TextCellValue(
+        "Keuntungan",
+      );
+      sheet.cell(CellIndex.indexByString("E$currentRow")).value = TextCellValue(
+        "Margin",
+      );
+
+      double saran1 = _calculateSafePrice(hpp, 1.3);
+      double saran2 = _calculateSafePrice(hpp, 1.5);
+      double saran3 = _calculateSafePrice(hpp, 2.0);
+
+      List<Map<String, dynamic>> saranList = [
+        {"strategi": "Konservatif", "markup": "30%", "harga": saran1},
+        {"strategi": "Standar", "markup": "50%", "harga": saran2},
+        {"strategi": "Agresif", "markup": "100%", "harga": saran3},
+      ];
+
+      for (var saran in saranList) {
+        currentRow++;
+        double harga = saran["harga"];
+        double keuntungan = harga - hpp;
+        double margin = keuntungan / harga * 100;
+
+        sheet.cell(CellIndex.indexByString("A$currentRow")).value =
+            TextCellValue(saran["strategi"]);
+        sheet.cell(CellIndex.indexByString("B$currentRow")).value =
+            TextCellValue(saran["markup"]);
+        sheet.cell(CellIndex.indexByString("C$currentRow")).value =
+            TextCellValue(harga as String);
+        sheet.cell(CellIndex.indexByString("D$currentRow")).value =
+            TextCellValue(keuntungan as String);
+        sheet.cell(CellIndex.indexByString("E$currentRow")).value =
+            TextCellValue("${margin.toStringAsFixed(1)}%");
+      }
+
+      var fileBytes = excel.save();
+      if (fileBytes != null) {
+        await FileSaver.instance.saveFile(
+          bytes: Uint8List.fromList(fileBytes),
+          name:
+              'Laporan_HPP_${namaProduk.isEmpty ? 'Produk' : namaProduk.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}_${DateTime.now().millisecondsSinceEpoch}.xlsx',
+          mimeType: MimeType.microsoftExcel,
+        );
+        _showSuccessSnackbar(context, 'Excel berhasil diexport!');
+      }
+    } catch (e) {
+      _showErrorSnackbar(context, 'Gagal export Excel: ${e.toString()}');
+    }
+  }
+
+  Future<void> _exportToCsv(BuildContext context) async {
+    try {
+      StringBuffer csv = StringBuffer();
+      csv.writeln("LAPORAN HPP - HPP SNAP");
+      csv.writeln("Tanggal: ${DateTime.now().toString()}");
+      csv.writeln();
+      csv.writeln("INFORMASI PRODUK");
+      csv.writeln("Nama Produk,${namaProduk.isEmpty ? "-" : namaProduk}");
+      csv.writeln("Kategori,${kategori.isEmpty ? "-" : kategori}");
+      csv.writeln();
+      csv.writeln("RINGKASAN BIAYA");
+      csv.writeln("Kategori,Jumlah");
+      csv.writeln("Biaya Bahan Baku,${totalBiayaBahan.toStringAsFixed(2)}");
+      if (totalBiayaTenagaKerja > 0) {
+        csv.writeln(
+          "Biaya Tenaga Kerja,${totalBiayaTenagaKerja.toStringAsFixed(2)}",
+        );
+      }
+      csv.writeln(
+        "Alokasi Biaya Tetap,${totalAlokasiBiayaTetap.toStringAsFixed(2)}",
+      );
+      csv.writeln("TOTAL HPP,${hpp.toStringAsFixed(2)}");
+      csv.writeln();
+
+      if (listBahan.isNotEmpty) {
+        csv.writeln("DETAIL BAHAN BAKU");
+        csv.writeln("Nama Bahan,Jumlah Pakai,Satuan,Biaya per Produk");
+        for (var bahan in listBahan) {
+          csv.writeln(
+            "${bahan.nama.isEmpty ? "Bahan" : bahan.nama},${bahan.jumlahPakai},${bahan.satuan},${bahan.biayaProduk.toStringAsFixed(2)}",
+          );
+        }
+        csv.writeln();
+      }
+      csv.writeln("SARAN HARGA JUAL");
+      csv.writeln("Strategi,Markup,Harga Jual,Keuntungan,Margin");
+
+      double saran1 = _calculateSafePrice(hpp, 1.3);
+      double saran2 = _calculateSafePrice(hpp, 1.5);
+      double saran3 = _calculateSafePrice(hpp, 2.0);
+
+      List<Map<String, dynamic>> saranList = [
+        {"strategi": "Konservatif", "markup": "30%", "harga": saran1},
+        {"strategi": "Standar", "markup": "50%", "harga": saran2},
+        {"strategi": "Agresif", "markup": "100%", "harga": saran3},
+      ];
+
+      for (var saran in saranList) {
+        double harga = saran["harga"];
+        double keuntungan = harga - hpp;
+        double margin = keuntungan / harga * 100;
+
+        csv.writeln(
+          "${saran["strategi"]},${saran["markup"]},${harga.toStringAsFixed(2)},${keuntungan.toStringAsFixed(2)},${margin.toStringAsFixed(1)}%",
+        );
+      }
+
+      final bytes = utf8.encode(csv.toString());
+      await FileSaver.instance.saveFile(
+        bytes: bytes,
+        name:
+            'Laporan_HPP_${namaProduk.isEmpty ? 'Produk' : namaProduk.replaceAll(RegExp(r'[^a-zA-Z0-9]'), '_')}_${DateTime.now().millisecondsSinceEpoch}.csv',
+        mimeType: MimeType.csv,
+      );
+
+      _showSuccessSnackbar(context, 'CSV berhasil diexport!');
+    } catch (e) {
+      _showErrorSnackbar(context, 'Gagal export CSV: ${e.toString()}');
+    }
+  }
+
+  pw.Widget _buildPdfHeader() {
+    return pw.Column(
+      crossAxisAlignment: pw.CrossAxisAlignment.start,
+      children: [
+        pw.Row(
+          mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+          children: [
+            pw.Column(
+              crossAxisAlignment: pw.CrossAxisAlignment.start,
+              children: [
+                pw.Text(
+                  'LAPORAN HPP',
+                  style: pw.TextStyle(
+                    fontSize: 24,
+                    fontWeight: pw.FontWeight.bold,
+                    color: PdfColors.blue800,
+                  ),
+                ),
+                pw.Text(
+                  'HPP SNAP - Aplikasi Perhitungan Harga Pokok Produksi',
+                  style: const pw.TextStyle(fontSize: 12),
+                ),
+              ],
+            ),
+            pw.Text(
+              'Tanggal: ${DateTime.now().toString().split(' ')[0]}',
+              style: const pw.TextStyle(fontSize: 10),
+            ),
+          ],
+        ),
+        pw.Divider(thickness: 2),
+      ],
+    );
+  }
+
+  pw.Widget _buildPdfProductInfo() {
+    return pw.Container(
+      decoration: pw.BoxDecoration(
+        border: pw.Border.all(color: PdfColors.blue200),
+        borderRadius: pw.BorderRadius.circular(5),
+      ),
+      padding: const pw.EdgeInsets.all(10),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            'INFORMASI PRODUK',
+            style: pw.TextStyle(
+              fontSize: 16,
+              fontWeight: pw.FontWeight.bold,
+              color: PdfColors.blue800,
+            ),
+          ),
+          pw.SizedBox(height: 10),
+          pw.Row(
+            children: [
+              pw.Text(
+                'Nama Produk: ',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+              pw.Text(namaProduk.isEmpty ? '-' : namaProduk),
+            ],
+          ),
+          pw.SizedBox(height: 5),
+          pw.Row(
+            children: [
+              pw.Text(
+                'Kategori: ',
+                style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+              ),
+              pw.Text(kategori.isEmpty ? '-' : kategori),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  pw.Widget _buildPdfHppSummary() {
+    return pw.Container(
+      decoration: pw.BoxDecoration(
+        border: pw.Border.all(color: PdfColors.green200),
+        borderRadius: pw.BorderRadius.circular(5),
+      ),
+      padding: const pw.EdgeInsets.all(10),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            'RINGKASAN BIAYA',
+            style: pw.TextStyle(
+              fontSize: 16,
+              fontWeight: pw.FontWeight.bold,
+              color: PdfColors.green800,
+            ),
+          ),
+          pw.SizedBox(height: 10),
+          _buildPdfCostRow('Biaya Bahan Baku', totalBiayaBahan),
+          if (totalBiayaTenagaKerja > 0)
+            _buildPdfCostRow('Biaya Tenaga Kerja', totalBiayaTenagaKerja),
+          _buildPdfCostRow('Alokasi Biaya Tetap', totalAlokasiBiayaTetap),
+          pw.Divider(),
+          _buildPdfCostRow('TOTAL HPP', hpp, isTotal: true),
+        ],
+      ),
+    );
+  }
+
+  pw.Widget _buildPdfCostRow(
+    String label,
+    double value, {
+    bool isTotal = false,
+  }) {
+    return pw.Padding(
+      padding: const pw.EdgeInsets.symmetric(vertical: 4),
+      child: pw.Row(
+        mainAxisAlignment: pw.MainAxisAlignment.spaceBetween,
+        children: [
+          pw.Text(
+            label,
+            style: isTotal
+                ? pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 14)
+                : null,
+          ),
+          pw.Text(
+            'Rp ${_formatCurrency(value)}',
+            style: isTotal
+                ? pw.TextStyle(fontWeight: pw.FontWeight.bold, fontSize: 14)
+                : null,
+          ),
+        ],
+      ),
+    );
+  }
+
+  pw.Widget _buildPdfMaterialDetails() {
+    return pw.Container(
+      decoration: pw.BoxDecoration(
+        border: pw.Border.all(color: PdfColors.orange200),
+        borderRadius: pw.BorderRadius.circular(5),
+      ),
+      padding: const pw.EdgeInsets.all(10),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            'DETAIL BAHAN BAKU',
+            style: pw.TextStyle(
+              fontSize: 16,
+              fontWeight: pw.FontWeight.bold,
+              color: PdfColors.orange800,
+            ),
+          ),
+          pw.SizedBox(height: 10),
+          pw.Table(
+            border: pw.TableBorder.all(),
+            children: [
+              pw.TableRow(
+                decoration: const pw.BoxDecoration(color: PdfColors.grey300),
+                children: [
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(8),
+                    child: pw.Text(
+                      'Nama Bahan',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(8),
+                    child: pw.Text(
+                      'Jumlah Pakai',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(8),
+                    child: pw.Text(
+                      'Satuan',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(8),
+                    child: pw.Text(
+                      'Biaya/Produk',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              for (var bahan in listBahan)
+                pw.TableRow(
+                  children: [
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text(bahan.nama.isEmpty ? 'Bahan' : bahan.nama),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text(bahan.jumlahPakai.toString()),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text(bahan.satuan),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text(
+                        'Rp ${_formatCurrency(bahan.biayaProduk)}',
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  pw.Widget _buildPdfFixedCostDetails() {
+    return pw.Container(
+      decoration: pw.BoxDecoration(
+        border: pw.Border.all(color: PdfColors.purple200),
+        borderRadius: pw.BorderRadius.circular(5),
+      ),
+      padding: const pw.EdgeInsets.all(10),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            'DETAIL BIAYA TETAP',
+            style: pw.TextStyle(
+              fontSize: 16,
+              fontWeight: pw.FontWeight.bold,
+              color: PdfColors.purple800,
+            ),
+          ),
+          pw.SizedBox(height: 10),
+          pw.Table(
+            border: pw.TableBorder.all(),
+            children: [
+              pw.TableRow(
+                decoration: const pw.BoxDecoration(color: PdfColors.grey300),
+                children: [
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(8),
+                    child: pw.Text(
+                      'Nama Biaya',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(8),
+                    child: pw.Text(
+                      'Total Biaya/Bulan',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(8),
+                    child: pw.Text(
+                      'Alokasi/Produk',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              for (var biaya in listBiayaTetap)
+                pw.TableRow(
+                  children: [
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text(
+                        biaya.nama.isEmpty ? 'Biaya Tetap' : biaya.nama,
+                      ),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text('Rp ${_formatCurrency(biaya.totalBiaya)}'),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text(
+                        'Rp ${_formatCurrency(biaya.alokasiPerProduk)}',
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  pw.Widget _buildPdfPriceSuggestions() {
+    double saran1 = _calculateSafePrice(hpp, 1.3);
+    double saran2 = _calculateSafePrice(hpp, 1.5);
+    double saran3 = _calculateSafePrice(hpp, 2.0);
+
+    List<Map<String, dynamic>> saranList = [
+      {"strategi": "Konservatif", "markup": "30%", "harga": saran1},
+      {"strategi": "Standar", "markup": "50%", "harga": saran2},
+      {"strategi": "Agresif", "markup": "100%", "harga": saran3},
+    ];
+
+    return pw.Container(
+      decoration: pw.BoxDecoration(
+        border: pw.Border.all(color: PdfColors.red200),
+        borderRadius: pw.BorderRadius.circular(5),
+      ),
+      padding: const pw.EdgeInsets.all(10),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            'SARAN HARGA JUAL',
+            style: pw.TextStyle(
+              fontSize: 16,
+              fontWeight: pw.FontWeight.bold,
+              color: PdfColors.red800,
+            ),
+          ),
+          pw.SizedBox(height: 10),
+          pw.Table(
+            border: pw.TableBorder.all(),
+            children: [
+              pw.TableRow(
+                decoration: const pw.BoxDecoration(color: PdfColors.grey300),
+                children: [
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(8),
+                    child: pw.Text(
+                      'Strategi',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(8),
+                    child: pw.Text(
+                      'Markup',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(8),
+                    child: pw.Text(
+                      'Harga Jual',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(8),
+                    child: pw.Text(
+                      'Keuntungan',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(8),
+                    child: pw.Text(
+                      'Margin',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              for (var saran in saranList)
+                pw.TableRow(
+                  children: [
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text(saran["strategi"]),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text(saran["markup"]),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text('Rp ${_formatCurrency(saran["harga"])}'),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text(
+                        'Rp ${_formatCurrency(saran["harga"] - hpp)}',
+                      ),
+                    ),
+                    pw.Padding(
+                      padding: const pw.EdgeInsets.all(8),
+                      child: pw.Text(
+                        '${((saran["harga"] - hpp) / saran["harga"] * 100).toStringAsFixed(1)}%',
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  pw.Widget _buildPdfFooter() {
+    return pw.Container(
+      margin: const pw.EdgeInsets.only(top: 20),
+      padding: const pw.EdgeInsets.all(10),
+      decoration: pw.BoxDecoration(
+        color: PdfColors.grey100,
+        borderRadius: pw.BorderRadius.circular(5),
+      ),
+      child: pw.Column(
+        children: [
+          pw.Text(
+            'Catatan:',
+            style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+          ),
+          pw.SizedBox(height: 5),
+          pw.Text(
+            'Laporan ini dibuat secara otomatis oleh aplikasi HPP SNAP. '
+            'Pastikan untuk menyesuaikan harga berdasarkan kondisi pasar dan strategi bisnis Anda.',
+            style: const pw.TextStyle(fontSize: 10),
+            textAlign: pw.TextAlign.center,
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showSuccessSnackbar(BuildContext context, String message) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: successColor,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
+  }
+
+  void _showErrorSnackbar(BuildContext context, String message) {
+    if (context.mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(message),
+          backgroundColor: Colors.red,
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    }
   }
 }

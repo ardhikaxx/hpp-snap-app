@@ -334,14 +334,15 @@ class _HomeScreenState extends State<HomeScreen> {
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 24,
-                                    fontWeight: FontWeight.w700,
-                                    letterSpacing: 0.5,
+                                    fontWeight: FontWeight.w800,
+                                    fontFamily: 'SuperTrend',
+                                    letterSpacing: 1.2,
                                   ),
                                   textAlign: TextAlign.center,
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
-                                  'Ikuti langkah-langkah berikut untuk menghitung Harga Pokok Produksi dengan mudah',
+                                  'Ikuti langkah-langkah berikut untuk menghitung Harga Pokok Produksi (HPP) dengan mudah dan cepat',
                                   style: TextStyle(
                                     color: Colors.white.withOpacity(0.9),
                                     fontSize: 14,
@@ -470,7 +471,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Container(
                   decoration: BoxDecoration(
                     color: Colors.white,
-                    borderRadius: BorderRadius.circular(15)
+                    borderRadius: BorderRadius.circular(15),
                   ),
                   child: IconButton(
                     icon: Icon(
@@ -805,7 +806,6 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             const SizedBox(height: 4),
             Text(
-              // PERBAIKAN: Tampilkan jumlah pakai tanpa .0 jika angka bulat
               '${_formatNumber(bahan.jumlahPakai)} ${bahan.satuan} per produk',
               style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
@@ -874,20 +874,23 @@ class _HomeScreenState extends State<HomeScreen> {
     TextEditingController namaController = TextEditingController(
       text: bahanEdit.nama,
     );
-    // PERBAIKAN: Controller untuk jumlah pakai - kosong jika 0
     TextEditingController jumlahPakaiController = TextEditingController(
-      text: bahanEdit.jumlahPakai == 0 ? '' : _formatNumberInput(bahanEdit.jumlahPakai),
+      text: bahanEdit.jumlahPakai == 0
+          ? ''
+          : _formatNumberInput(bahanEdit.jumlahPakai),
     );
     TextEditingController satuanController = TextEditingController(
       text: bahanEdit.satuan,
     );
-    // PERBAIKAN: Controller untuk total harga - kosong jika 0
     TextEditingController totalHargaController = TextEditingController(
-      text: bahanEdit.totalHarga == 0 ? '' : _formatNumberInput(bahanEdit.totalHarga),
+      text: bahanEdit.totalHarga == 0
+          ? ''
+          : _formatNumberInput(bahanEdit.totalHarga),
     );
-    // PERBAIKAN: Controller untuk jumlah beli - kosong jika 0
     TextEditingController jumlahBeliController = TextEditingController(
-      text: bahanEdit.jumlahBeli == 0 ? '' : _formatNumberInput(bahanEdit.jumlahBeli),
+      text: bahanEdit.jumlahBeli == 0
+          ? ''
+          : _formatNumberInput(bahanEdit.jumlahBeli),
     );
     TextEditingController satuanBeliController = TextEditingController(
       text: bahanEdit.satuanBeli,
@@ -904,7 +907,10 @@ class _HomeScreenState extends State<HomeScreen> {
               color: primaryColor,
             ),
             const SizedBox(width: 8),
-            Text(isEdit ? 'Edit Bahan Baku' : 'Tambah Bahan Baku', style: TextStyle(color: primaryColor, fontSize: 18)),
+            Text(
+              isEdit ? 'Edit Bahan Baku' : 'Tambah Bahan Baku',
+              style: TextStyle(color: primaryColor, fontSize: 18, fontWeight: FontWeight.bold),
+            ),
           ],
         ),
         content: SingleChildScrollView(
@@ -1163,7 +1169,6 @@ class _HomeScreenState extends State<HomeScreen> {
     double jumlahBeli,
     double jumlahPakai,
   ) {
-    // PERBAIKAN: Handle division by zero dan nilai NaN/Infinity
     if (jumlahBeli <= 0 || totalHarga <= 0 || jumlahPakai <= 0) {
       return 0;
     }
@@ -1172,7 +1177,6 @@ class _HomeScreenState extends State<HomeScreen> {
       double biayaPerUnit = totalHarga / jumlahBeli;
       double result = biayaPerUnit * jumlahPakai;
 
-      // Pastikan hasilnya valid (bukan NaN atau Infinity)
       if (result.isNaN || result.isInfinite) {
         return 0;
       }
@@ -1513,13 +1517,15 @@ class _HomeScreenState extends State<HomeScreen> {
     TextEditingController namaController = TextEditingController(
       text: biayaEdit.nama,
     );
-    // PERBAIKAN: Controller untuk total biaya - kosong jika 0
     TextEditingController totalBiayaController = TextEditingController(
-      text: biayaEdit.totalBiaya == 0 ? '' : _formatNumberInput(biayaEdit.totalBiaya),
+      text: biayaEdit.totalBiaya == 0
+          ? ''
+          : _formatNumberInput(biayaEdit.totalBiaya),
     );
-    // PERBAIKAN: Controller untuk alokasi - kosong jika 0
     TextEditingController alokasiController = TextEditingController(
-      text: biayaEdit.alokasiPerProduk == 0 ? '' : _formatNumberInput(biayaEdit.alokasiPerProduk),
+      text: biayaEdit.alokasiPerProduk == 0
+          ? ''
+          : _formatNumberInput(biayaEdit.alokasiPerProduk),
     );
 
     double saranAlokasi = _hitungSaranAlokasi(biayaEdit.totalBiaya);
@@ -1532,9 +1538,9 @@ class _HomeScreenState extends State<HomeScreen> {
             backgroundColor: Colors.white,
             title: Row(
               children: [
-                Icon(isEdit ? Icons.edit : Icons.money, color: primaryColor),
+                Icon(isEdit ? Icons.edit : FontAwesomeIcons.sackDollar, color: primaryColor),
                 const SizedBox(width: 8),
-                Text(isEdit ? 'Edit Biaya Tetap' : 'Tambah Biaya Tetap'),
+                Text(isEdit ? 'Edit Biaya Tetap' : 'Tambah Biaya Tetap', style: TextStyle(color: primaryColor, fontSize: 18, fontWeight: FontWeight.bold)),
               ],
             ),
             content: SingleChildScrollView(
@@ -1816,22 +1822,18 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
-  // PERBAIKAN: Fungsi untuk memformat angka tanpa .0
   String _formatNumber(double value) {
     if (value.isNaN || value.isInfinite) {
       return '0';
     }
-    
-    // Jika angka bulat, tampilkan tanpa desimal
+
     if (value == value.toInt()) {
       return value.toInt().toString();
     }
-    
-    // Jika ada desimal, tampilkan dengan desimal
+
     return value.toString();
   }
 
-  // PERBAIKAN: Fungsi untuk memformat input number (kosong jika 0)
   String _formatNumberInput(double value) {
     if (value == 0) {
       return '';
@@ -1844,12 +1846,13 @@ class _HomeScreenState extends State<HomeScreen> {
       return '0';
     }
 
-    // PERBAIKAN: Format currency tanpa .0 untuk angka bulat
     String numberString;
     if (value == value.toInt()) {
       numberString = value.toInt().toString();
     } else {
-      numberString = value.toStringAsFixed(0); // Tetap gunakan 0 desimal untuk currency
+      numberString = value.toStringAsFixed(
+        0,
+      );
     }
 
     return numberString.replaceAllMapped(

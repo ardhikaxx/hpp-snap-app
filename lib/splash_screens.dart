@@ -211,7 +211,7 @@ class _SplashScreenState extends State<SplashScreen>
                     ),
                   ),
                   _BounceText(
-                    text: 'Hitung Harga Pokok Penjualan\nProdukmu Sekarang!',
+                    text: 'Hitung Harga Pokok Produksi\nProdukmu Sekarang!',
                     animation: _controller,
                     delay: 0.5,
                     style: const TextStyle(

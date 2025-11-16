@@ -1158,7 +1158,6 @@ class ResultScreen extends StatelessWidget {
 
   Future<void> _exportToPdf(BuildContext context) async {
     try {
-      // Tampilkan loading indicator
       _showLoadingSnackbar(context, 'Membuat PDF...');
 
       final pdf = pw.Document();
@@ -1195,7 +1194,6 @@ class ResultScreen extends StatelessWidget {
 
       final bytes = await pdf.save();
 
-      // Tutup snackbar loading
       if (context.mounted) {
         ScaffoldMessenger.of(context).hideCurrentSnackBar();
       }
@@ -1727,7 +1725,7 @@ class ResultScreen extends StatelessWidget {
         ),
         backgroundColor: primaryColor,
         behavior: SnackBarBehavior.floating,
-        duration: const Duration(seconds: 30), // Durasi panjang untuk loading
+        duration: const Duration(seconds: 30),
       ),
     );
   }

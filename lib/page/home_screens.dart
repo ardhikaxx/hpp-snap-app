@@ -469,15 +469,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 right: 16,
                 child: Container(
                   decoration: BoxDecoration(
-                    color: Colors.white.withOpacity(0.9),
-                    shape: BoxShape.circle,
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black.withOpacity(0.1),
-                        blurRadius: 8,
-                        offset: const Offset(0, 2),
-                      ),
-                    ],
+                    color: Colors.white,
+                    borderRadius: BorderRadius.circular(15)
                   ),
                   child: IconButton(
                     icon: Icon(
@@ -812,7 +805,8 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             const SizedBox(height: 4),
             Text(
-              '${bahan.jumlahPakai} ${bahan.satuan} per produk',
+              // PERBAIKAN: Tampilkan jumlah pakai tanpa .0 jika angka bulat
+              '${_formatNumber(bahan.jumlahPakai)} ${bahan.satuan} per produk',
               style: TextStyle(fontSize: 12, color: Colors.grey[600]),
             ),
             Text(
@@ -880,17 +874,20 @@ class _HomeScreenState extends State<HomeScreen> {
     TextEditingController namaController = TextEditingController(
       text: bahanEdit.nama,
     );
+    // PERBAIKAN: Controller untuk jumlah pakai - kosong jika 0
     TextEditingController jumlahPakaiController = TextEditingController(
-      text: bahanEdit.jumlahPakai.toString(),
+      text: bahanEdit.jumlahPakai == 0 ? '' : _formatNumberInput(bahanEdit.jumlahPakai),
     );
     TextEditingController satuanController = TextEditingController(
       text: bahanEdit.satuan,
     );
+    // PERBAIKAN: Controller untuk total harga - kosong jika 0
     TextEditingController totalHargaController = TextEditingController(
-      text: bahanEdit.totalHarga.toString(),
+      text: bahanEdit.totalHarga == 0 ? '' : _formatNumberInput(bahanEdit.totalHarga),
     );
+    // PERBAIKAN: Controller untuk jumlah beli - kosong jika 0
     TextEditingController jumlahBeliController = TextEditingController(
-      text: bahanEdit.jumlahBeli.toString(),
+      text: bahanEdit.jumlahBeli == 0 ? '' : _formatNumberInput(bahanEdit.jumlahBeli),
     );
     TextEditingController satuanBeliController = TextEditingController(
       text: bahanEdit.satuanBeli,
@@ -907,7 +904,7 @@ class _HomeScreenState extends State<HomeScreen> {
               color: primaryColor,
             ),
             const SizedBox(width: 8),
-            Text(isEdit ? 'Edit Bahan Baku' : 'Tambah Bahan Baku'),
+            Text(isEdit ? 'Edit Bahan Baku' : 'Tambah Bahan Baku', style: TextStyle(color: primaryColor, fontSize: 18)),
           ],
         ),
         content: SingleChildScrollView(
@@ -1198,7 +1195,7 @@ class _HomeScreenState extends State<HomeScreen> {
           children: [
             Row(
               children: [
-                Icon(Icons.attach_money, color: primaryColor),
+                Icon(FontAwesomeIcons.sackDollar, color: primaryColor),
                 const SizedBox(width: 12),
                 const Text(
                   'Biaya Tenaga Kerja',
@@ -1445,7 +1442,7 @@ class _HomeScreenState extends State<HomeScreen> {
             color: primaryLight,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(Icons.attach_money, color: primaryColor),
+          child: Icon(FontAwesomeIcons.fileInvoiceDollar, color: primaryColor),
         ),
         title: Text(
           biaya.nama.isEmpty ? 'Biaya ${index + 1}' : biaya.nama,
@@ -1516,11 +1513,13 @@ class _HomeScreenState extends State<HomeScreen> {
     TextEditingController namaController = TextEditingController(
       text: biayaEdit.nama,
     );
+    // PERBAIKAN: Controller untuk total biaya - kosong jika 0
     TextEditingController totalBiayaController = TextEditingController(
-      text: biayaEdit.totalBiaya.toString(),
+      text: biayaEdit.totalBiaya == 0 ? '' : _formatNumberInput(biayaEdit.totalBiaya),
     );
+    // PERBAIKAN: Controller untuk alokasi - kosong jika 0
     TextEditingController alokasiController = TextEditingController(
-      text: biayaEdit.alokasiPerProduk.toString(),
+      text: biayaEdit.alokasiPerProduk == 0 ? '' : _formatNumberInput(biayaEdit.alokasiPerProduk),
     );
 
     double saranAlokasi = _hitungSaranAlokasi(biayaEdit.totalBiaya);
@@ -1817,17 +1816,46 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  // PERBAIKAN: Fungsi untuk memformat angka tanpa .0
+  String _formatNumber(double value) {
+    if (value.isNaN || value.isInfinite) {
+      return '0';
+    }
+    
+    // Jika angka bulat, tampilkan tanpa desimal
+    if (value == value.toInt()) {
+      return value.toInt().toString();
+    }
+    
+    // Jika ada desimal, tampilkan dengan desimal
+    return value.toString();
+  }
+
+  // PERBAIKAN: Fungsi untuk memformat input number (kosong jika 0)
+  String _formatNumberInput(double value) {
+    if (value == 0) {
+      return '';
+    }
+    return _formatNumber(value);
+  }
+
   String _formatCurrency(double value) {
     if (value.isNaN || value.isInfinite) {
       return '0';
     }
 
-    return value
-        .toStringAsFixed(0)
-        .replaceAllMapped(
-          RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
-          (Match m) => '${m[1]}.',
-        );
+    // PERBAIKAN: Format currency tanpa .0 untuk angka bulat
+    String numberString;
+    if (value == value.toInt()) {
+      numberString = value.toInt().toString();
+    } else {
+      numberString = value.toStringAsFixed(0); // Tetap gunakan 0 desimal untuk currency
+    }
+
+    return numberString.replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
   }
 
   void _hitungHPP() {

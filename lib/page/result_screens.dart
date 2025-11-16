@@ -249,7 +249,7 @@ class ResultScreen extends StatelessWidget {
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 Icon(
-                  FontAwesomeIcons.moneyBillTransfer,
+                  FontAwesomeIcons.moneyBills,
                   color: Colors.white.withOpacity(0.9),
                   size: 20,
                 ),
@@ -459,14 +459,14 @@ class ResultScreen extends StatelessWidget {
                 _buildEnhancedHPPItem(
                   'Biaya Tenaga Kerja',
                   totalBiayaTenagaKerja,
-                  Icons.engineering_rounded,
+                  FontAwesomeIcons.userGear,
                   warningColor,
                   validHpp,
                 ),
               _buildEnhancedHPPItem(
                 'Alokasi Biaya Tetap',
                 totalAlokasiBiayaTetap,
-                Icons.business_center_rounded,
+                FontAwesomeIcons.sackDollar,
                 successColor,
                 validHpp,
               ),
@@ -630,7 +630,7 @@ class ResultScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
-                      FontAwesomeIcons.fileInvoiceDollar,
+                      FontAwesomeIcons.coins,
                       color: primaryColor,
                       size: 24,
                     ),
@@ -647,7 +647,7 @@ class ResultScreen extends StatelessWidget {
               if (listBahan.isNotEmpty) ...[
                 _buildDetailSection(
                   'Bahan Baku',
-                  Icons.inventory_2_rounded,
+                  FontAwesomeIcons.boxesPacking,
                   infoColor,
                   listBahan
                       .map(
@@ -666,7 +666,7 @@ class ResultScreen extends StatelessWidget {
               if (totalBiayaTenagaKerja > 0) ...[
                 _buildDetailSection(
                   'Tenaga Kerja',
-                  Icons.engineering_rounded,
+                  FontAwesomeIcons.userGear,
                   warningColor,
                   [
                     _buildDetailItemWithSubtitle(
@@ -685,7 +685,7 @@ class ResultScreen extends StatelessWidget {
               if (listBiayaTetap.isNotEmpty) ...[
                 _buildDetailSection(
                   'Biaya Tetap',
-                  Icons.business_center_rounded,
+                  FontAwesomeIcons.sackDollar,
                   successColor,
                   listBiayaTetap
                       .map(
@@ -869,7 +869,7 @@ class ResultScreen extends StatelessWidget {
                       borderRadius: BorderRadius.circular(12),
                     ),
                     child: Icon(
-                      Icons.trending_up_rounded,
+                      FontAwesomeIcons.chartColumn,
                       color: primaryColor,
                       size: 24,
                     ),

@@ -240,15 +240,15 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: Column(
                     children: [
                       _buildInfoProduk(),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 14),
                       _buildBahanSection(),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 14),
                       _buildBiayaTenagaKerjaSection(),
-                      const SizedBox(height: 20),
+                      const SizedBox(height: 14),
                       _buildBiayaTetapSection(),
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 16),
                       _buildHitungButton(),
-                      const SizedBox(height: 30),
+                      const SizedBox(height: 25),
                     ],
                   ),
                 ),
@@ -619,7 +619,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildInfoProduk() {
     return Card(
-      elevation: 2,
+      elevation: 8,
+      shadowColor: Colors.black.withAlpha(70),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       color: Colors.white,
       child: Padding(
@@ -687,7 +688,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildBahanSection() {
     return Card(
-      elevation: 2,
+      elevation: 8,
+      shadowColor: Colors.black.withAlpha(70),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       color: Colors.white,
       child: Padding(
@@ -798,7 +800,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Icon(FontAwesomeIcons.boxOpen, color: primaryColor),
         ),
         title: Text(
-          bahan.nama.isEmpty ? 'Bahan ${index + 1}' : bahan.nama,
+          bahan.nama.isEmpty ? 'Bahan Baku ${index + 1}' : bahan.nama,
           style: const TextStyle(fontWeight: FontWeight.w500),
         ),
         subtitle: Column(
@@ -821,7 +823,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         trailing: PopupMenuButton<String>(
           color: Colors.white,
-          icon: Icon(Icons.more_vert, color: primaryColor),
+          icon: Icon(FontAwesomeIcons.ellipsis, color: primaryColor),
           onSelected: (value) {
             if (value == 'edit') {
               _showTambahBahanPopup(index);
@@ -834,7 +836,7 @@ class _HomeScreenState extends State<HomeScreen> {
               value: 'edit',
               child: Row(
                 children: [
-                  Icon(Icons.edit, size: 20, color: Colors.blue),
+                  Icon(FontAwesomeIcons.penToSquare, size: 16, color: Colors.blue),
                   SizedBox(width: 8),
                   Text('Edit'),
                 ],
@@ -844,7 +846,7 @@ class _HomeScreenState extends State<HomeScreen> {
               value: 'delete',
               child: Row(
                 children: [
-                  Icon(Icons.delete, color: Colors.red, size: 20),
+                  Icon(FontAwesomeIcons.trashCan, color: Colors.red, size: 16),
                   SizedBox(width: 8),
                   Text('Hapus'),
                 ],
@@ -992,7 +994,7 @@ class _HomeScreenState extends State<HomeScreen> {
               TextFormField(
                 controller: totalHargaController,
                 decoration: InputDecoration(
-                  labelText: 'Total Harga Pembelian (Rp)',
+                  labelText: 'Total Harga Pembelian',
                   labelStyle: TextStyle(color: Colors.grey[500]),
                   enabledBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(18),
@@ -1189,7 +1191,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildBiayaTenagaKerjaSection() {
     return Card(
-      elevation: 2,
+      elevation: 8,
+      shadowColor: Colors.black.withAlpha(70),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       color: Colors.white,
       child: Padding(
@@ -1311,7 +1314,8 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildBiayaTetapSection() {
     return Card(
-      elevation: 2,
+      elevation: 8,
+      shadowColor: Colors.black.withAlpha(70),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       color: Colors.white,
       child: Padding(
@@ -1449,7 +1453,7 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Icon(FontAwesomeIcons.fileInvoiceDollar, color: primaryColor),
         ),
         title: Text(
-          biaya.nama.isEmpty ? 'Biaya ${index + 1}' : biaya.nama,
+          biaya.nama.isEmpty ? 'Biaya Tetap ${index + 1}' : biaya.nama,
           style: const TextStyle(fontWeight: FontWeight.w500),
         ),
         subtitle: Column(
@@ -1472,7 +1476,7 @@ class _HomeScreenState extends State<HomeScreen> {
         ),
         trailing: PopupMenuButton<String>(
           color: Colors.white,
-          icon: Icon(Icons.more_vert, color: primaryColor),
+          icon: Icon(FontAwesomeIcons.ellipsis, color: primaryColor),
           onSelected: (value) {
             if (value == 'edit') {
               _showTambahBiayaTetapPopup(index);
@@ -1485,7 +1489,7 @@ class _HomeScreenState extends State<HomeScreen> {
               value: 'edit',
               child: Row(
                 children: [
-                  Icon(Icons.edit, size: 20, color: Colors.blue),
+                  Icon(FontAwesomeIcons.penToSquare, size: 16, color: Colors.blue),
                   SizedBox(width: 8),
                   Text('Edit'),
                 ],
@@ -1495,7 +1499,7 @@ class _HomeScreenState extends State<HomeScreen> {
               value: 'delete',
               child: Row(
                 children: [
-                  Icon(Icons.delete, color: Colors.red, size: 20),
+                  Icon(FontAwesomeIcons.trashCan, color: Colors.red, size: 16),
                   SizedBox(width: 8),
                   Text('Hapus'),
                 ],

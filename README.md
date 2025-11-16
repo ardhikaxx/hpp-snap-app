@@ -20,7 +20,7 @@ Aplikasi ini cocok untuk:
 
 - **Input Sumber Biaya:** Masukkan biaya bahan baku, tenaga kerja, overhead, dan biaya lain-lain.
 - **Kalkulasi Otomatis:** HPP dihitung otomatis berdasarkan data yang dimasukkan.
-- **Riwayat Perhitungan:** Simpan perhitungan.
+- **Riwayat Perhitungan:** Simpan perhitungan dengan Export PDF.
 
 ## Teknologi
 
@@ -59,13 +59,6 @@ Dikembangkan menggunakan Flutter agar dapat berjalan pada berbagai platform mobi
    > Pastikan sudah memiliki emulator/ponsel yang terhubung.
 
 4. Untuk kebutuhan tertentu (misal penggunaan plugin native), pastikan mengikuti instruksi tambahan pada dokumentasi `/ios` atau `/android`.
-
-## Kontribusi
-
-Kontribusi sangat terbuka!
-1. Fork repo ini dan buat branch baru untuk pekerjaan Anda.
-2. Buat perubahan yang diperlukan.
-3. Lakukan pull request beserta deskripsi perubahan yang Anda lakukan.
 
 ## Lisensi
 

@@ -1117,15 +1117,15 @@ class ResultScreen extends StatelessWidget {
                 color: Colors.transparent,
                 borderRadius: BorderRadius.circular(16),
                 child: InkWell(
-                  onTap: () => _showExportDialog(context),
+                  onTap: () => _exportToPdf(context),
                   borderRadius: BorderRadius.circular(16),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(FontAwesomeIcons.fileInvoice, color: Colors.white),
+                      Icon(FontAwesomeIcons.filePdf, color: Colors.white),
                       const SizedBox(width: 8),
                       const Text(
-                        'Export',
+                        'Export PDF',
                         style: TextStyle(
                           color: Colors.white,
                           fontWeight: FontWeight.bold,
@@ -1156,89 +1156,11 @@ class ResultScreen extends StatelessWidget {
         );
   }
 
-  void _showExportDialog(BuildContext context) {
-    final scaffoldContext = context;
-
-    showDialog(
-      context: context,
-      builder: (context) => Dialog(
-        backgroundColor: Colors.white,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(24)),
-        child: Padding(
-          padding: const EdgeInsets.all(24),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Container(
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: primaryColor.withOpacity(0.1),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  FontAwesomeIcons.fileInvoice,
-                  color: primaryColor,
-                  size: 32,
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text(
-                'Export Laporan',
-                style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-              ),
-              const SizedBox(height: 8),
-              Text(
-                'Pilih format export untuk menyimpan laporan HPP',
-                textAlign: TextAlign.center,
-                style: TextStyle(color: Colors.grey[600], fontSize: 14),
-              ),
-              const SizedBox(height: 20),
-              SizedBox(
-                width: double.infinity,
-                child: ElevatedButton.icon(
-                  onPressed: () {
-                    Navigator.pop(context);
-                    _exportToPdf(scaffoldContext);
-                  },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFFD32F2F),
-                    foregroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(vertical: 16),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                  ),
-                  icon: const Icon(FontAwesomeIcons.filePdf, size: 20),
-                  label: const Text(
-                    'Export PDF',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
-                  ),
-                ),
-              ),
-              const SizedBox(height: 16),
-              SizedBox(
-                width: double.infinity,
-                child: TextButton(
-                  onPressed: () => Navigator.pop(context),
-                  child: Text(
-                    'Batal',
-                    style: TextStyle(
-                      color: primaryColor,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    ),
-                  ),
-                ),
-              ),
-            ],
-          ),
-        ),
-      ),
-    );
-  }
-
   Future<void> _exportToPdf(BuildContext context) async {
     try {
+      // Tampilkan loading indicator
+      _showLoadingSnackbar(context, 'Membuat PDF...');
+
       final pdf = pw.Document();
       pdf.addPage(
         pw.MultiPage(
@@ -1255,6 +1177,10 @@ class ResultScreen extends StatelessWidget {
                 _buildPdfMaterialDetails(),
                 pw.SizedBox(height: 15),
               ],
+              if (totalBiayaTenagaKerja > 0) ...[
+                _buildPdfLaborDetails(),
+                pw.SizedBox(height: 15),
+              ],
               if (listBiayaTetap.isNotEmpty) ...[
                 _buildPdfFixedCostDetails(),
                 pw.SizedBox(height: 15),
@@ -1269,6 +1195,11 @@ class ResultScreen extends StatelessWidget {
 
       final bytes = await pdf.save();
 
+      // Tutup snackbar loading
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      }
+
       await Printing.sharePdf(
         bytes: bytes,
         filename:
@@ -1277,6 +1208,10 @@ class ResultScreen extends StatelessWidget {
 
       _showSuccessSnackbar(context, 'PDF berhasil diexport!');
     } catch (e) {
+      // Tutup snackbar loading jika ada error
+      if (context.mounted) {
+        ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      }
       _showErrorSnackbar(context, 'Gagal export PDF: ${e.toString()}');
     }
   }
@@ -1501,6 +1436,72 @@ class ResultScreen extends StatelessWidget {
     );
   }
 
+  pw.Widget _buildPdfLaborDetails() {
+    return pw.Container(
+      decoration: pw.BoxDecoration(
+        border: pw.Border.all(color: PdfColors.amber200),
+        borderRadius: pw.BorderRadius.circular(5),
+      ),
+      padding: const pw.EdgeInsets.all(10),
+      child: pw.Column(
+        crossAxisAlignment: pw.CrossAxisAlignment.start,
+        children: [
+          pw.Text(
+            'DETAIL TENAGA KERJA',
+            style: pw.TextStyle(
+              fontSize: 16,
+              fontWeight: pw.FontWeight.bold,
+              color: PdfColors.amber800,
+            ),
+          ),
+          pw.SizedBox(height: 10),
+          pw.Table(
+            border: pw.TableBorder.all(),
+            children: [
+              pw.TableRow(
+                decoration: const pw.BoxDecoration(color: PdfColors.grey300),
+                children: [
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(8),
+                    child: pw.Text(
+                      'Keterangan',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(8),
+                    child: pw.Text(
+                      'Biaya/Produk',
+                      style: pw.TextStyle(fontWeight: pw.FontWeight.bold),
+                    ),
+                  ),
+                ],
+              ),
+              pw.TableRow(
+                children: [
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(8),
+                    child: pw.Text(
+                      biayaTenagaKerja?.keterangan.isNotEmpty == true
+                          ? biayaTenagaKerja!.keterangan
+                          : 'Biaya tenaga kerja per produk',
+                    ),
+                  ),
+                  pw.Padding(
+                    padding: const pw.EdgeInsets.all(8),
+                    child: pw.Text(
+                      'Rp ${_formatCurrency(totalBiayaTenagaKerja)}',
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
   pw.Widget _buildPdfFixedCostDetails() {
     return pw.Container(
       decoration: pw.BoxDecoration(
@@ -1707,6 +1708,26 @@ class ResultScreen extends StatelessWidget {
             textAlign: pw.TextAlign.center,
           ),
         ],
+      ),
+    );
+  }
+
+  void _showLoadingSnackbar(BuildContext context, String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Row(
+          children: [
+            const CircularProgressIndicator(
+              valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+              strokeWidth: 2,
+            ),
+            const SizedBox(width: 16),
+            Expanded(child: Text(message)),
+          ],
+        ),
+        backgroundColor: primaryColor,
+        behavior: SnackBarBehavior.floating,
+        duration: const Duration(seconds: 30), // Durasi panjang untuk loading
       ),
     );
   }

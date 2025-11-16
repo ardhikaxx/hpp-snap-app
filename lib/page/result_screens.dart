@@ -61,6 +61,7 @@ class ResultScreen extends StatelessWidget {
             backgroundColor: primaryColor,
             foregroundColor: Colors.white,
             elevation: 8,
+            shadowColor: Colors.black.withAlpha(70),
             shape: const ContinuousRectangleBorder(
               borderRadius: BorderRadius.only(
                 bottomLeft: Radius.circular(40),
@@ -319,7 +320,8 @@ class ResultScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Card(
-        elevation: 4,
+        elevation: 8,
+        shadowColor: Colors.black.withAlpha(70),
         color: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
@@ -415,7 +417,8 @@ class ResultScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Card(
-        elevation: 4,
+        elevation: 8,
+        shadowColor: Colors.black.withAlpha(70),
         color: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
@@ -609,7 +612,8 @@ class ResultScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Card(
-        elevation: 4,
+        elevation: 8,
+        shadowColor: Colors.black.withAlpha(70),
         color: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
@@ -847,7 +851,8 @@ class ResultScreen extends StatelessWidget {
     return Padding(
       padding: const EdgeInsets.symmetric(horizontal: 20),
       child: Card(
-        elevation: 4,
+        elevation: 8,
+        shadowColor: Colors.black.withAlpha(70),
         color: Colors.white,
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
         child: Padding(
@@ -1078,7 +1083,7 @@ class ResultScreen extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(Icons.replay_rounded, color: primaryColor),
+                      Icon(FontAwesomeIcons.retweet, color: primaryColor, size: 20,),
                       const SizedBox(width: 8),
                       Text(
                         'Hitung Lagi',
@@ -1122,7 +1127,7 @@ class ResultScreen extends StatelessWidget {
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Icon(FontAwesomeIcons.filePdf, color: Colors.white),
+                      Icon(FontAwesomeIcons.filePdf, color: Colors.white, size: 20,),
                       const SizedBox(width: 8),
                       const Text(
                         'Export PDF',
